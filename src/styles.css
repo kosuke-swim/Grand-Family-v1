@@ -1,0 +1,261 @@
+/* Grand-Family スタイル */
+
+/* ===== Google Fonts: 明朝体 ===== */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600&display=swap');
+
+:root {
+  --primary-color: #2c3e50;
+  --secondary-color: #3498db;
+  --success-color: #27ae60;
+  --info-color: #17a2b8;
+}
+
+body {
+  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  background: linear-gradient(135deg, #FDFBF7 0%, #F5F3EF 100%);
+  min-height: 100vh;
+}
+
+/* ナビゲーション（和紙調） */
+.navbar {
+  background: linear-gradient(135deg, #FDFBF7 0%, #F5F3EF 100%) !important;
+  border-bottom: 1px solid #e0ddd8;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  color: #2F353B !important;
+}
+
+.navbar .btn-outline-light {
+  color: #2F353B;
+  border-color: #2F353B;
+}
+
+.navbar .btn-outline-light:hover {
+  background-color: #2F353B;
+  color: #FDFBF7;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+/* タブナビゲーション */
+.nav-tabs .nav-link {
+  border: none;
+  color: #6c757d;
+  padding: 0.75rem 1.25rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--primary-color);
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--secondary-color);
+  border-bottom: 3px solid var(--secondary-color);
+  background-color: transparent;
+}
+
+/* リストグループ */
+.list-group-item {
+  border-left: none;
+  border-right: none;
+  padding: 1rem;
+  transition: background-color 0.15s ease;
+}
+
+.list-group-item:first-child {
+  border-top: none;
+}
+
+.list-group-item:hover {
+  background-color: rgba(52, 152, 219, 0.05);
+}
+
+/* バッジ */
+.badge.bg-secondary {
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+/* モーダル */
+.modal-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  border-radius: 12px 12px 0 0;
+}
+
+/* カード */
+.card {
+  border-radius: 8px;
+}
+
+.card-header {
+  font-weight: 500;
+}
+
+/* フォーム */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* ボタングループ（ラジオ風） */
+.btn-check:checked+.btn-outline-success {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.btn-check:checked+.btn-outline-info {
+  background-color: var(--info-color);
+  border-color: var(--info-color);
+}
+
+/* 電話ボタン */
+.btn-outline-primary {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 検索入力 */
+.input-group-text {
+  background-color: white;
+  border-right: none;
+}
+
+.input-group .form-control {
+  border-left: none;
+}
+
+.input-group .form-control:focus {
+  border-color: #ced4da;
+  box-shadow: none;
+}
+
+.input-group:focus-within {
+  box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+  border-radius: 0.375rem;
+}
+
+.input-group:focus-within .input-group-text,
+.input-group:focus-within .form-control {
+  border-color: var(--secondary-color);
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 576px) {
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* ===================================================================
+   令和の和モダン（Modern Sesshu）家系図スタイル
+   - 雪舟の水墨画をモチーフにしたミニマルデザイン
+   =================================================================== */
+
+/* 家系図コンテナ（横幅いっぱい） */
+#family-tree-container {
+  background: linear-gradient(135deg, #FDFBF7 0%, #F5F3EF 100%);
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  padding: 0 20px;
+}
+
+/* --- リンク（親子関係の線）--- */
+.sesshu-link {
+  fill: none;
+  stroke: #2F353B;
+  stroke-width: 7px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.6;
+}
+
+/* 配偶者間の接続線 */
+.sesshu-link--spouse {
+  stroke: #2F353B;
+  stroke-width: 3px;
+  stroke-linecap: round;
+  opacity: 0.5;
+}
+
+/* --- ノード共通 --- */
+.sesshu-node {
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+
+.sesshu-node:hover {
+  filter: drop-shadow(0 4px 12px rgba(47, 53, 59, 0.25));
+}
+
+/* ノード背景（角丸長方形）*/
+.sesshu-node__bg {
+  fill: transparent;
+  rx: 6;
+  ry: 6;
+}
+
+/* 生存者ノード */
+.sesshu-node--living .sesshu-node__bg {
+  stroke: none;
+}
+
+.sesshu-node--living .sesshu-node__name {
+  fill: #1a1a1a;
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 500;
+}
+
+.sesshu-node--living .sesshu-node__label {
+  fill: #555;
+  font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+}
+
+/* 故人ノード */
+.sesshu-node--deceased .sesshu-node__bg {
+  stroke: none;
+  fill: transparent;
+}
+
+.sesshu-node--deceased .sesshu-node__name {
+  fill: #8B8B8B;
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 400;
+}
+
+.sesshu-node--deceased .sesshu-node__label {
+  fill: #999;
+  font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+}
+
+/* 枝番バッジ */
+.sesshu-node__branch {
+  fill: #666;
+  font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  font-size: 9px;
+  font-weight: 400;
+}

@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grand-Family - 山田家 親族名簿</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <link href="/src/styles.css" rel="stylesheet">
+</head>
+
+<body x-data="mainApp" x-init="init()">
+
+  <!-- ナビゲーションバー -->
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="bi bi-tree"></i> デジタルまごまご会
+      </a>
+      <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#addMemberModal">
+        <i class="bi bi-plus-lg"></i> 新規登録
+      </button>
+    </div>
+  </nav>
+
+  <!-- メインコンテンツ -->
+  <div class="container mt-4">
+    <!-- タブナビゲーション -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+      <li class="nav-item">
+        <button class="nav-link" :class="{ active: currentView === 'magomago' }" @click="currentView = 'magomago'">
+          <i class="bi bi-people"></i> まごまご会
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" :class="{ active: currentView === 'tengoku' }" @click="currentView = 'tengoku'">
+          <i class="bi bi-cloud"></i> 天国会
+        </button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" :class="{ active: currentView === 'tree' }" @click="currentView = 'tree'">
+          <i class="bi bi-diagram-3"></i> 家系図
+        </button>
+      </li>
+    </ul>
+
+    <!-- まごまご会名簿（全員） -->
+    <div x-show="currentView === 'magomago'">
+      <h4 class="mb-3"><i class="bi bi-people-fill text-success"></i> まごまご会名簿</h4>
+
+      <!-- 検索 -->
+      <div class="input-group mb-3">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" class="form-control" placeholder="名前で検索..." x-model="searchQuery">
+      </div>
+
+      <!-- 枝番タブ（横スクロール可能） -->
+      <div class="d-flex gap-2 mb-3 overflow-auto pb-2" style="white-space: nowrap; -webkit-overflow-scrolling: touch;">
+        <template x-for="i in 9" :key="i">
+          <button class="btn btn-sm flex-shrink-0"
+            :class="selectedBranchId === i ? 'btn-primary' : 'btn-outline-secondary'" @click="selectedBranchId = i"
+            x-text="branchLabels[i]">
+          </button>
+        </template>
+        <button class="btn btn-sm flex-shrink-0"
+          :class="selectedBranchId === null ? 'btn-primary' : 'btn-outline-primary'" @click="selectedBranchId = null">
+          全て
+        </button>
+      </div>
+
+      <!-- 選択中の枝番のメンバーリスト -->
+      <template
+        x-for="branch in membersByBranch.filter(b => selectedBranchId === null || b.branchId === selectedBranchId)"
+        :key="branch.branchId">
+        <div class="mb-4">
+          <!-- 枝番ヘッダー（全て表示時のみ） -->
+          <h5 class="border-bottom pb-2 mb-3" x-show="selectedBranchId === null">
+            <i class="bi bi-signpost-split text-primary"></i>
+            <span x-text="branch.branchName"></span>
+            <span class="badge bg-primary ms-2" x-text="`${branch.members.length}名`"></span>
+          </h5>
+
+          <!-- 選択時のヘッダー -->
+          <div class="d-flex justify-content-between align-items-center mb-3" x-show="selectedBranchId !== null">
+            <h5 class="mb-0">
+              <i class="bi bi-signpost-split text-primary"></i>
+              <span x-text="branch.branchName"></span>
+            </h5>
+            <span class="badge bg-primary" x-text="`${branch.members.length}名`"></span>
+          </div>
+
+          <!-- メンバーリスト -->
+          <div class="list-group">
+            <template x-for="member in branch.members" :key="member.id">
+              <div class="list-group-item list-group-item-action" :class="{ 'bg-light': member.registry === 'tengoku' }"
+                style="cursor: pointer;" @click="openEditMember(member)">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <!-- 名前と天国会員バッジ -->
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                      <strong x-text="`${member.lastName} ${member.firstName}`"></strong>
+                      <span class="badge ms-1" x-show="member.registry === 'tengoku'"
+                        style="background-color: #4a5d23; color: white;">
+                        <i class="bi bi-cloud"></i> 天国会員
+                      </span>
+                    </div>
+                    <!-- 詳細情報 -->
+                    <div class="small text-muted">
+                      <span x-text="`第${member.generation}世代`"></span>
+                      <template x-if="member.birthDate">
+                        <span>
+                          ｜ <i class="bi bi-cake2"></i>
+                          <span x-text="member.birthDate"></span>
+                          (<span
+                            x-text="calculateAge(member.birthDate, member.registry === 'tengoku' ? member.passedAt : null)"></span>歳<span
+                            x-show="member.registry === 'tengoku'">で永眠</span>)
+                        </span>
+                      </template>
+                    </div>
+                    <div class="small text-muted mt-1" x-show="member.phone || member.address">
+                      <template x-if="member.phone">
+                        <span>
+                          <i class="bi bi-telephone"></i>
+                          <a :href="`tel:${member.phone}`" class="text-decoration-none" @click.stop
+                            x-text="member.phone"></a>
+                        </span>
+                      </template>
+                      <template x-if="member.address">
+                        <span :class="{ 'ms-2': member.phone }">
+                          <i class="bi bi-geo-alt"></i>
+                          <span x-text="member.address"></span>
+                        </span>
+                      </template>
+                    </div>
+                  </div>
+                  <button class="btn btn-outline-secondary btn-sm" @click.stop="openEditMember(member)">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+
+      <div class="text-center text-muted py-4" x-show="membersByBranch.length === 0">
+        メンバーがいません
+      </div>
+    </div>
+
+    <!-- 天国会名簿（故人） -->
+    <div x-show="currentView === 'tengoku'">
+      <h4 class="mb-3"><i class="bi bi-cloud-fill text-info"></i> 天国会名簿</h4>
+
+      <div class="list-group">
+        <template x-for="member in tengokuMembers" :key="member.id">
+          <div class="list-group-item d-flex justify-content-between align-items-center" style="cursor: pointer;"
+            @click="openEditMember(member)">
+            <div>
+              <strong x-text="`${member.lastName} ${member.firstName}`"></strong>
+              <span class="badge bg-secondary ms-2" x-text="branchLabels[member.branchId]"></span>
+              <small class="text-muted d-block"
+                x-text="`没: ${member.passedAt || '不明'} (享年 ${calculateAge(member.birthDate, member.passedAt)}歳)`">
+              </small>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" @click.stop="openEditMember(member)">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+        </template>
+        <div class="list-group-item text-center text-muted" x-show="tengokuMembers.length === 0">
+          メンバーがいません
+        </div>
+      </div>
+    </div>
+
+    <div x-show="currentView === 'tree'" x-init="$watch('currentView', v => { if (v === 'tree') initTree(); })">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0"><i class="bi bi-diagram-3-fill text-primary"></i> 家系図</h4>
+      </div>
+      <div id="family-tree-container" class="rounded" style="min-height: 500px; overflow: hidden;">
+      </div>
+      <small class="text-muted mt-2 d-block">
+        <i class="bi bi-info-circle"></i> マウスホイールでズーム、ドラッグで移動できます
+      </small>
+    </div>
+  </div>
+
+  <!-- ======================================== -->
+  <!-- 新規メンバー登録モーダル -->
+  <!-- ======================================== -->
+  <div class="modal fade" id="addMemberModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title"><i class="bi bi-person-plus"></i> 新規メンバー登録</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+
+          <!-- 親選択 (インクリメンタル検索) -->
+          <div class="card mb-3 border-primary">
+            <div class="card-header bg-primary text-white">
+              <i class="bi bi-arrow-up-circle"></i> 親（父または母）の選択
+            </div>
+            <div class="card-body">
+              <!-- 選択済み表示（クリックで解除） -->
+              <div x-show="newMember.parentId" class="alert alert-success mb-2" style="cursor: pointer;"
+                @click="clearParentSelection()">
+                <i class="bi bi-check-circle"></i>
+                <strong x-text="getParentDisplayName(newMember.parentId)"></strong>
+                <small class="text-muted ms-2">(クリックで変更)</small>
+              </div>
+
+              <!-- 検索入力 -->
+              <div class="input-group" x-show="!newMember.parentId">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control form-control-lg" x-model="parentSearchQuery"
+                  placeholder="名前で検索..." @focus="showParentDropdown = true">
+              </div>
+
+              <!-- 候補リスト -->
+              <div class="list-group mt-2" x-show="!newMember.parentId && parentSearchQuery.length > 0"
+                style="max-height: 200px; overflow-y: auto;">
+                <template x-for="member in filteredParentCandidates" :key="member.id">
+                  <button type="button" class="list-group-item list-group-item-action" @click="selectParent(member)">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span x-text="`${member.lastName} ${member.firstName}`"></span>
+                      <small class="text-muted"
+                        x-text="`第${member.generation}世代 - ${branchLabels[member.branchId] || '始祖'}`"></small>
+                    </div>
+                  </button>
+                </template>
+                <div class="list-group-item text-muted text-center" x-show="filteredParentCandidates.length === 0">
+                  候補が見つかりません
+                </div>
+              </div>
+
+              <!-- 全員表示（検索クエリが空の場合）-->
+              <div class="mt-2" x-show="!newMember.parentId && parentSearchQuery.length === 0">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle"></i> 名前を入力して親を検索してください（登録人数: <span x-text="allMembers.length"></span>名）
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- 自動計算フィールド表示 -->
+          <div class="row mb-3" x-show="newMember.parentId" x-transition>
+            <div class="col-6">
+              <label class="form-label"><i class="bi bi-layers"></i> 世代</label>
+              <input type="text" class="form-control bg-light" :value="`第${newMember.generation}世代`" readonly disabled>
+            </div>
+            <div class="col-6">
+              <label class="form-label"><i class="bi bi-signpost-split"></i> 枝番</label>
+              <!-- 始祖が親以外の場合: 読み取り専用 -->
+              <input type="text" class="form-control bg-light" :value="branchLabels[newMember.branchId] || ''" readonly
+                disabled x-show="selectedParentGeneration > 1">
+              <!-- 始祖が親の場合: 枝番を手動選択 -->
+              <select class="form-select" x-model.number="newMember.branchId" x-show="selectedParentGeneration === 1"
+                :class="{ 'border-danger': selectedParentGeneration === 1 && !newMember.branchId }">
+                <option value="">枝番を選択 *</option>
+                <template x-for="i in 9" :key="i">
+                  <option :value="i" x-text="branchLabels[i]"></option>
+                </template>
+              </select>
+              <small class="text-danger" x-show="selectedParentGeneration === 1 && !newMember.branchId">
+                <i class="bi bi-exclamation-triangle"></i> 枝番を選択してください（必須）
+              </small>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- 基本情報 -->
+          <h6 class="text-muted mb-3"><i class="bi bi-person"></i> 基本情報</h6>
+
+          <div class="row mb-3">
+            <div class="col-6">
+              <label class="form-label">姓 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" x-model="newMember.lastName" placeholder="山田">
+            </div>
+            <div class="col-6">
+              <label class="form-label">名 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" x-model="newMember.firstName" placeholder="太郎">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">生年月日</label>
+            <input type="date" class="form-control" x-model="newMember.birthDate">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">登録区分</label>
+            <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" name="registry" id="registryMagomago" value="magomago"
+                x-model="newMember.registry">
+              <label class="btn btn-outline-success" for="registryMagomago">
+                <i class="bi bi-emoji-smile"></i> まごまご会（生存）
+              </label>
+
+              <input type="radio" class="btn-check" name="registry" id="registryTengoku" value="tengoku"
+                x-model="newMember.registry">
+              <label class="btn btn-outline-info" for="registryTengoku">
+                <i class="bi bi-cloud"></i> 天国会（故人）
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-3" x-show="newMember.registry === 'tengoku'" x-transition>
+            <label class="form-label">入会日</label>
+            <input type="date" class="form-control" x-model="newMember.passedAt">
+          </div>
+
+          <hr>
+
+          <!-- 配偶者同時登録 -->
+          <div class="card mb-3" :class="addSpouseTogether ? 'border-primary' : 'border-secondary'">
+            <div class="card-header d-flex align-items-center gap-2" style="cursor: pointer;"
+              @click="addSpouseTogether = !addSpouseTogether">
+              <input type="checkbox" class="form-check-input" x-model="addSpouseTogether" @click.stop>
+              <i class="bi bi-heart-fill text-danger"></i>
+              <span>配偶者も一緒に登録する</span>
+            </div>
+            <div class="card-body" x-show="addSpouseTogether" x-transition>
+              <div class="row mb-3">
+                <div class="col-6">
+                  <label class="form-label">配偶者の姓</label>
+                  <input type="text" class="form-control" x-model="newSpouse.lastName"
+                    :placeholder="newMember.lastName || '山田'"
+                    x-init="$watch('newMember.lastName', val => { if (!newSpouse.lastName) newSpouse.lastName = val; })">
+                  <small class="text-muted">本人の姓から自動コピー（編集可）</small>
+                </div>
+                <div class="col-6">
+                  <label class="form-label">配偶者の名 <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" x-model="newSpouse.firstName" placeholder="花子">
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">生年月日</label>
+                <input type="date" class="form-control" x-model="newSpouse.birthDate">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">登録区分</label>
+                <div class="btn-group w-100" role="group">
+                  <input type="radio" class="btn-check" name="spouseRegistry" id="spouseRegistryMagomago"
+                    value="magomago" x-model="newSpouse.registry">
+                  <label class="btn btn-outline-success" for="spouseRegistryMagomago">
+                    <i class="bi bi-emoji-smile"></i> まごまご会
+                  </label>
+                  <input type="radio" class="btn-check" name="spouseRegistry" id="spouseRegistryTengoku" value="tengoku"
+                    x-model="newSpouse.registry">
+                  <label class="btn btn-outline-info" for="spouseRegistryTengoku">
+                    <i class="bi bi-cloud"></i> 天国会
+                  </label>
+                </div>
+              </div>
+              <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle"></i>
+                本人と配偶者は相互にリンクされ、家系図で横並びに表示されます。
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- 連絡先情報 -->
+          <h6 class="text-muted mb-3"><i class="bi bi-telephone"></i> 連絡先情報</h6>
+
+          <div class="mb-3">
+            <label class="form-label">電話番号</label>
+            <input type="tel" class="form-control" x-model="newMember.phone" placeholder="090-1234-5678">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">住所</label>
+            <textarea class="form-control" rows="2" x-model="newMember.address" placeholder="東京都渋谷区..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg"></i> キャンセル
+          </button>
+          <button type="button" class="btn btn-primary" @click="saveMember()" :disabled="!isFormValid">
+            <i class="bi bi-check-lg"></i> 登録する
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================== -->
+  <!-- メンバー編集モーダル -->
+  <!-- ======================================== -->
+  <div class="modal fade" id="editMemberModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content" x-show="editMember">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title"><i class="bi bi-pencil"></i> メンバー情報編集</h5>
+          <button type="button" class="btn-close" @click="cancelEdit()"></button>
+        </div>
+        <div class="modal-body">
+          <!-- 読み取り専用情報 -->
+          <div class="alert alert-light mb-3">
+            <small class="text-muted">
+              <i class="bi bi-info-circle"></i>
+              世代と枝番は変更できません
+            </small>
+            <div class="mt-2">
+              <span class="badge bg-secondary" x-text="`第${editMember?.generation}世代`"></span>
+              <span class="badge bg-secondary ms-1" x-text="branchLabels[editMember?.branchId] || '始祖'"></span>
+            </div>
+          </div>
+
+          <!-- 基本情報 -->
+          <div class="row mb-3">
+            <div class="col-6">
+              <label class="form-label">姓</label>
+              <input type="text" class="form-control" x-model="editMember.lastName">
+            </div>
+            <div class="col-6">
+              <label class="form-label">名</label>
+              <input type="text" class="form-control" x-model="editMember.firstName">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">生年月日</label>
+            <input type="date" class="form-control" x-model="editMember.birthDate">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">登録区分</label>
+            <div class="btn-group w-100" role="group">
+              <input type="radio" class="btn-check" name="editRegistry" id="editRegistryMagomago" value="magomago"
+                x-model="editMember.registry">
+              <label class="btn btn-outline-success" for="editRegistryMagomago">
+                <i class="bi bi-emoji-smile"></i> まごまご会
+              </label>
+
+              <input type="radio" class="btn-check" name="editRegistry" id="editRegistryTengoku" value="tengoku"
+                x-model="editMember.registry">
+              <label class="btn btn-outline-info" for="editRegistryTengoku">
+                <i class="bi bi-cloud"></i> 天国会
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-3" x-show="editMember?.registry === 'tengoku'" x-transition>
+            <label class="form-label">入会日</label>
+            <input type="date" class="form-control" x-model="editMember.passedAt">
+          </div>
+
+          <!-- 配偶者情報 -->
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-heart-fill text-danger"></i> 配偶者</label>
+
+            <!-- 配偶者が設定されている場合 -->
+            <div x-show="editMember?.spouseId" class="card border-danger">
+              <div class="card-body d-flex justify-content-between align-items-center py-2">
+                <span>
+                  <i class="bi bi-heart text-danger"></i>
+                  <strong x-text="getSpouseDisplayName(editMember?.spouseId)"></strong>
+                </span>
+                <button type="button" class="btn btn-outline-secondary btn-sm" @click="unlinkSpouse()">
+                  <i class="bi bi-link-45deg"></i> リンク解除
+                </button>
+              </div>
+            </div>
+
+            <!-- 配偶者が設定されていない場合 -->
+            <div x-show="!editMember?.spouseId">
+              <select class="form-select" x-model="editMember.spouseId">
+                <option value="">なし</option>
+                <template x-for="m in allMembers.filter(m => m.id !== editMember?.id)" :key="m.id">
+                  <option :value="m.id" x-text="`${m.lastName} ${m.firstName}`"></option>
+                </template>
+              </select>
+              <small class="text-muted">
+                <i class="bi bi-info-circle"></i> 配偶者を設定すると家系図で横並びに表示されます
+              </small>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- 連絡先情報 -->
+          <h6 class="text-muted mb-3"><i class="bi bi-telephone"></i> 連絡先情報</h6>
+
+          <div class="mb-3">
+            <label class="form-label">電話番号</label>
+            <input type="tel" class="form-control" x-model="editMember.phone" placeholder="090-1234-5678">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">住所</label>
+            <textarea class="form-control" rows="2" x-model="editMember.address" placeholder="東京都渋谷区..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-danger" @click="deleteMember()">
+            <i class="bi bi-trash"></i> 削除
+          </button>
+          <div>
+            <button type="button" class="btn btn-secondary" @click="cancelEdit()">
+              <i class="bi bi-x-lg"></i> キャンセル
+            </button>
+            <button type="button" class="btn btn-warning" @click="saveEdit()">
+              <i class="bi bi-check-lg"></i> 更新する
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================== -->
+  <!-- 削除確認モーダル -->
+  <!-- ======================================== -->
+  <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> 削除の確認</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-3">
+            <i class="bi bi-person-x text-danger" style="font-size: 3rem;"></i>
+          </div>
+          <p class="text-center mb-3" x-text="deleteConfirmMessage"></p>
+
+          <!-- 配偶者同時削除オプション -->
+          <div x-show="deleteSpouseOption" class="alert alert-warning">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="deleteSpouseCheck" x-model="deleteSpouseTogether">
+              <label class="form-check-label" for="deleteSpouseCheck">
+                <i class="bi bi-heart-fill text-danger"></i>
+                配偶者「<span x-text="deleteSpouseName"></span>」も一緒に削除する
+              </label>
+            </div>
+          </div>
+
+          <div class="alert alert-secondary mb-0">
+            <small><i class="bi bi-info-circle"></i> この操作は取り消せません。</small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg"></i> キャンセル
+          </button>
+          <button type="button" class="btn btn-danger" @click="executeDelete()">
+            <i class="bi bi-trash"></i> 削除する
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================== -->
+  <!-- 成功通知モーダル -->
+  <!-- ======================================== -->
+  <div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body text-center py-4">
+          <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+          <h5 class="mt-3" x-text="successMessage || '完了しました！'"></h5>
+        </div>
+        <div class="modal-footer justify-content-center border-0 pt-0">
+          <button type="button" class="btn btn-success" data-bs-dismiss="modal">
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- App Entry Point -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
