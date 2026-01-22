@@ -5,7 +5,7 @@ import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
     apiKey: "AIzaSyC1qH5x2i9rpe0Tex5NlkX5AB-VjezDEIg",
-    authDomain: "grand-family-v1.firebaseapp.com",
+    authDomain: "magomago-meibo.firebaseapp.com",
     projectId: "grand-family-v1",
     storageBucket: "grand-family-v1.firebasestorage.app",
     messagingSenderId: "655538664149",

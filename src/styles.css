@@ -18,9 +18,15 @@ body {
 
 /* ナビゲーション（和紙調） */
 .navbar {
-  background: linear-gradient(135deg, #FDFBF7 0%, #F5F3EF 100%) !important;
-  border-bottom: 1px solid #e0ddd8;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: transparent !important;
+}
+
+/* ナビゲーションの竹アイコン */
+.navbar-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  vertical-align: middle;
 }
 
 .navbar-brand {
@@ -42,25 +48,52 @@ body {
   font-size: 1.25rem;
 }
 
-/* タブナビゲーション */
-.nav-tabs .nav-link {
+/* ===== スティッキー・タブナビゲーション（ピルスタイル） ===== */
+.sticky-nav-container {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: transparent;
+  padding: 8px 0 4px 0;
+  margin: 0 -12px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.nav-pills-custom {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-pill {
+  padding: 10px 20px;
+  border-radius: 24px;
   border: none;
-  color: #6c757d;
-  padding: 0.75rem 1.25rem;
+  background: transparent;
+  color: #666;
+  font-size: 0.9rem;
   font-weight: 500;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.nav-tabs .nav-link:hover {
-  color: var(--primary-color);
-  background-color: rgba(0, 0, 0, 0.03);
+.nav-pill:hover {
+  background: rgba(47, 53, 59, 0.08);
+  color: #2F353B;
 }
 
-.nav-tabs .nav-link.active {
-  color: var(--secondary-color);
-  border-bottom: 3px solid var(--secondary-color);
-  background-color: transparent;
+.nav-pill.active {
+  background: #2F353B;
+  color: white;
 }
+
+.nav-pill i {
+  margin-right: 4px;
+}
+
 
 /* リストグループ */
 .list-group-item {
@@ -84,6 +117,265 @@ body {
   font-size: 0.75rem;
 }
 
+/* ===== コントロール・ハブ ===== */
+.control-hub {
+  padding: 0 4px;
+}
+
+/* 横スクロールチップス */
+.branch-chips-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to right, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+}
+
+.branch-chips-container::-webkit-scrollbar {
+  display: none;
+}
+
+.branch-chips {
+  padding-right: 32px;
+}
+
+.branch-chip {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #d0cdc8;
+  background: white;
+  color: #555;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.branch-chip:hover {
+  background: #f5f3ef;
+  border-color: #b0ada8;
+}
+
+.branch-chip.active {
+  background: #4a5d23;
+  border-color: #4a5d23;
+  color: white;
+}
+
+.branch-chip .bi-check2 {
+  margin-right: 4px;
+  font-weight: bold;
+}
+
+/* 検索トグルボタン */
+.search-toggle-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #d0cdc8;
+  background: white;
+  color: #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-toggle-btn:hover {
+  background: #f5f3ef;
+  border-color: #b0ada8;
+}
+
+/* 展開式検索バー */
+.search-bar-container {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.3s ease;
+  margin-bottom: 0 !important;
+}
+
+.search-bar-container.expanded {
+  max-height: 60px;
+  opacity: 1;
+  margin-bottom: 1rem !important;
+}
+
+.search-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #d0cdc8;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background: transparent;
+}
+
+.search-input::placeholder {
+  color: #aaa;
+}
+
+/* 検索クリアボタン */
+.search-clear-btn {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-clear-btn:hover {
+  color: #666;
+}
+
+/* ===== 家系図: 和紙テクスチャ背景 ===== */
+.family-tree-washi {
+  background: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.family-tree-washi::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.family-tree-washi svg {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== コントロール・ドック ===== */
+.control-dock {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+}
+
+.control-dock-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.control-dock-btn:hover {
+  background: #f0ede8;
+  color: #2F353B;
+}
+
+.control-dock-btn:active {
+  background: #e0ddd8;
+  transform: scale(0.95);
+}
+
+.control-dock-divider {
+  height: 1px;
+  background: #e0ddd8;
+  margin: 4px 0;
+}
+
+/* ===== ノード詳細ポップオーバー ===== */
+.tree-detail-popover {
+  position: fixed;
+  z-index: 1000;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  min-width: 200px;
+  max-width: 280px;
+  font-family: 'Noto Serif JP', serif;
+}
+
+.tree-detail-popover::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-bottom-color: white;
+  border-top: none;
+}
+
+.tree-detail-popover h5 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  color: #2F353B;
+}
+
+.tree-detail-popover .detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.875rem;
+  color: #666;
+  border-bottom: 1px solid #f0ede8;
+}
+
+.tree-detail-popover .detail-row:last-child {
+  border-bottom: none;
+}
+
+.tree-detail-popover .detail-label {
+  color: #999;
+}
+
+.tree-detail-popover .close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #999;
+  cursor: pointer;
+}
+
+.tree-detail-popover .close-btn:hover {
+  color: #555;
+}
+
 /* モーダル */
 .modal-content {
   border: none;
@@ -102,6 +394,44 @@ body {
 
 .card-header {
   font-weight: 500;
+}
+
+/* ===== 名簿の枝番カード ===== */
+.branch-card {
+  border-radius: 16px;
+  box-shadow: none;
+  border: none;
+}
+
+.branch-card .card-header {
+  border-radius: 16px 16px 0 0;
+  border-bottom: none;
+  padding: 1rem 1.25rem;
+}
+
+.branch-card .list-group-flush .list-group-item {
+  border-left: none;
+  border-right: none;
+  position: relative;
+}
+
+/* リスト間のボーダーを両端16px開ける */
+.branch-card .list-group-flush .list-group-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+  background-color: #e0ddd8;
+}
+
+.branch-card .list-group-flush .list-group-item:last-child::after {
+  display: none;
+}
+
+.branch-card .list-group-flush .list-group-item {
+  border-bottom: none;
 }
 
 /* フォーム */
@@ -180,6 +510,7 @@ body {
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   padding: 0 20px;
+  position: relative;
 }
 
 /* --- リンク（親子関係の線）--- */
@@ -258,4 +589,206 @@ body {
   font-family: 'Hiragino Sans', 'Noto Sans JP', sans-serif;
   font-size: 9px;
   font-weight: 400;
+}
+
+/* ===================================================================
+   ログイン画面スタイル
+   - 和モダンなデザイン
+   =================================================================== */
+
+/* Alpine.js用 - 初期表示時のちらつき防止 */
+[x-cloak] {
+  display: none !important;
+}
+
+/* ログイン画面（フルスクリーン） */
+.login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FDFBF7 0%, #F5F3EF 100%);
+  padding: 20px;
+}
+
+/* ログインカード */
+.login-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* ログインヘッダー */
+.login-header {
+  margin-bottom: 32px;
+}
+
+.login-icon {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 16px auto;
+}
+
+.login-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #2F353B;
+  margin: 0 0 8px 0;
+}
+
+.login-subtitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+/* ログインフォーム */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-input-group {
+  text-align: left;
+}
+
+.login-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 6px;
+}
+
+.login-label i {
+  margin-right: 4px;
+}
+
+.login-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1rem;
+  border: 2px solid #e0ddd8;
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: #FDFBF7;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+.login-input::placeholder {
+  color: #aaa;
+}
+
+/* パスワード入力欄のレイアウト調整 */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper .login-input {
+  padding-right: 48px;
+  /* ボタンのスペース */
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  z-index: 5;
+}
+
+.password-toggle-btn:hover {
+  color: #3498db;
+}
+
+/* エラーメッセージ */
+.login-error {
+  background: #fff5f5;
+  border: 1px solid #e74c3c;
+  color: #c0392b;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.login-error i {
+  margin-right: 6px;
+}
+
+/* ログインボタン */
+.login-btn {
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #2F353B 0%, #3d4449 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(47, 53, 59, 0.3);
+}
+
+.login-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.login-btn i {
+  margin-right: 6px;
+}
+
+/* フッター */
+.login-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e0ddd8;
+  color: #999;
+}
+
+/* レスポンシブ */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 30px 24px;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+  }
+
+  .login-icon {
+    font-size: 2.5rem;
+  }
 }

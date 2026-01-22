@@ -44,12 +44,26 @@ export default function adminModule() {
             firstName: '',
             lastName: '',
             birthDate: '',
-            registry: 'tengoku'
+            registry: 'tengoku',
+            passedAt: null
         },
 
         // 編集モード用
         isEditing: false,
-        editMember: null,
+        editMember: {
+            firstName: '',
+            lastName: '',
+            registry: 'magomago',
+            birthDate: '',
+            passedAt: '',
+            spouseId: '',
+            phone: '',
+            address: ''
+        },
+
+        // 配偶者検索用（編集モーダル）
+        spouseSearchQuery: '',
+        showSpouseDropdown: false,
 
         // 削除確認モーダル用
         deleteConfirmMessage: '',
@@ -70,6 +84,20 @@ export default function adminModule() {
                 m.generation &&
                 m.branchId
             );
+        },
+
+        /**
+         * 配偶者候補のフィルタ済みリスト（編集モーダル用インクリメンタル検索）
+         */
+        get filteredSpouseCandidates() {
+            if (!this.spouseSearchQuery) return [];
+            const query = this.spouseSearchQuery.toLowerCase();
+            return this.allMembers.filter((m) => {
+                // 自分自身は除外
+                if (this.editMember && m.id === this.editMember.id) return false;
+                const fullName = `${m.lastName}${m.firstName}`.toLowerCase();
+                return fullName.includes(query);
+            });
         },
 
         // --- Methods ---
@@ -268,7 +296,8 @@ export default function adminModule() {
                 firstName: '',
                 lastName: '',
                 birthDate: '',
-                registry: 'tengoku'
+                registry: 'tengoku',
+                passedAt: null
             };
         },
 
@@ -336,9 +365,38 @@ export default function adminModule() {
          */
         cancelEdit() {
             this.isEditing = false;
-            this.editMember = null;
+            this.editMember = {
+                firstName: '',
+                lastName: '',
+                registry: 'magomago',
+                birthDate: '',
+                passedAt: '',
+                spouseId: '',
+                phone: '',
+                address: ''
+            };
+            // 配偶者検索もリセット
+            this.spouseSearchQuery = '';
+            this.showSpouseDropdown = false;
             const modal = bootstrap.Modal.getInstance(document.getElementById('editMemberModal'));
             if (modal) modal.hide();
+        },
+
+        /**
+         * 配偶者を選択（編集モーダル用）
+         */
+        selectSpouse(member) {
+            this.editMember.spouseId = member.id;
+            this.spouseSearchQuery = '';
+            this.showSpouseDropdown = false;
+        },
+
+        /**
+         * 配偶者選択を解除（編集モーダル用）
+         */
+        clearSpouseSelection() {
+            this.editMember.spouseId = '';
+            this.spouseSearchQuery = '';
         },
 
         /**
@@ -348,12 +406,16 @@ export default function adminModule() {
             if (!this.editMember) return;
 
             try {
-                const memberRef = doc(db, 'members', this.editMember.id);
+                // 編集前の元データを取得
+                const originalMember = this.allMembers.find(m => m.id === this.editMember.id);
+                const oldSpouseId = originalMember?.spouseId || null;
+                const newSpouseId = this.editMember.spouseId || null;
+
                 const updateData = {
                     firstName: this.editMember.firstName,
                     lastName: this.editMember.lastName,
                     registry: this.editMember.registry,
-                    spouseId: this.editMember.spouseId || null,
+                    spouseId: newSpouseId,
                     birthDate: this.editMember.birthDate || null,
                     passedAt: this.editMember.registry === 'tengoku'
                         ? this.editMember.passedAt
@@ -363,13 +425,48 @@ export default function adminModule() {
                     updatedAt: new Date()
                 };
 
-                await updateDoc(memberRef, updateData);
+                // Batch書き込みで配偶者リンクを双方向更新
+                const batch = writeBatch(db);
+                const memberRef = doc(db, 'members', this.editMember.id);
+                batch.update(memberRef, updateData);
+
+                // 配偶者が変更された場合
+                if (oldSpouseId !== newSpouseId) {
+                    // 旧配偶者のリンクを解除
+                    if (oldSpouseId) {
+                        const oldSpouseRef = doc(db, 'members', oldSpouseId);
+                        batch.update(oldSpouseRef, { spouseId: null, updatedAt: new Date() });
+                    }
+                    // 新配偶者にリンクを設定
+                    if (newSpouseId) {
+                        const newSpouseRef = doc(db, 'members', newSpouseId);
+                        batch.update(newSpouseRef, { spouseId: this.editMember.id, updatedAt: new Date() });
+                    }
+                }
+
+                await batch.commit();
                 console.log('Member updated:', this.editMember.id);
 
                 // ローカルStateを更新
                 const index = this.allMembers.findIndex(m => m.id === this.editMember.id);
                 if (index !== -1) {
                     this.allMembers[index] = { ...this.allMembers[index], ...updateData };
+                }
+
+                // 配偶者の変更をローカルStateに反映
+                if (oldSpouseId !== newSpouseId) {
+                    if (oldSpouseId) {
+                        const oldSpouseIndex = this.allMembers.findIndex(m => m.id === oldSpouseId);
+                        if (oldSpouseIndex !== -1) {
+                            this.allMembers[oldSpouseIndex].spouseId = null;
+                        }
+                    }
+                    if (newSpouseId) {
+                        const newSpouseIndex = this.allMembers.findIndex(m => m.id === newSpouseId);
+                        if (newSpouseIndex !== -1) {
+                            this.allMembers[newSpouseIndex].spouseId = this.editMember.id;
+                        }
+                    }
                 }
 
                 this.cancelEdit();
@@ -529,6 +626,97 @@ export default function adminModule() {
             } catch (error) {
                 console.error('Delete failed:', error);
                 alert('削除に失敗しました: ' + error.message);
+            }
+        },
+
+        /**
+         * 配偶者リンク一括修正（一時的なヘルパー）
+         * 使い方: コンソールで app.fixSpouseLinks() を実行
+         */
+        async fixSpouseLinks() {
+            const batch = writeBatch(db);
+            let fixCount = 0;
+
+            for (const member of this.allMembers) {
+                if (member.spouseId) {
+                    const spouse = this.allMembers.find(m => m.id === member.spouseId);
+                    if (spouse && spouse.spouseId !== member.id) {
+                        console.log(`修正: ${spouse.lastName} ${spouse.firstName} → ${member.lastName} ${member.firstName}`);
+                        const spouseRef = doc(db, 'members', spouse.id);
+                        batch.update(spouseRef, { spouseId: member.id, updatedAt: new Date() });
+                        spouse.spouseId = member.id;
+                        fixCount++;
+                    }
+                }
+            }
+
+            if (fixCount > 0) {
+                await batch.commit();
+                console.log(`✅ ${fixCount}件の配偶者リンクを修正しました！`);
+                alert(`${fixCount}件の配偶者リンクを修正しました！`);
+            } else {
+                console.log('✅ 修正が必要なリンクはありませんでした。');
+                alert('すべての配偶者リンクは正常です！');
+            }
+        },
+
+        /**
+         * 配偶者がいてparentIdを持つメンバーの一覧を表示
+         * 使い方: コンソールで app.listMarriedWithParent() を実行
+         */
+        listMarriedWithParent() {
+            const results = [];
+            for (const member of this.allMembers) {
+                if (member.spouseId && member.parentId) {
+                    const spouse = this.allMembers.find(m => m.id === member.spouseId);
+                    const parent = this.allMembers.find(m => m.id === member.parentId);
+                    results.push({
+                        id: member.id,
+                        name: `${member.lastName} ${member.firstName}`,
+                        generation: member.generation,
+                        parent: parent ? `${parent.lastName} ${parent.firstName}` : '不明',
+                        spouse: spouse ? `${spouse.lastName} ${spouse.firstName}` : '不明'
+                    });
+                }
+            }
+            console.table(results);
+            console.log('上記の人のうち、婿入り/嫁入りの方のIDをメモして、app.fixMarriedInParent(["id1", "id2", ...]) で修正できます。');
+            return results;
+        },
+
+        /**
+         * 指定したIDの配偶者のparentIdをnullに設定（婿入り/嫁入り修正）
+         * 使い方: コンソールで app.fixMarriedInParent(["id1", "id2"]) を実行
+         */
+        async fixMarriedInParent(memberIds) {
+            if (!memberIds || memberIds.length === 0) {
+                console.log('修正するメンバーIDを配列で指定してください。');
+                console.log('例: app.fixMarriedInParent(["abc123", "def456"])');
+                return;
+            }
+
+            const batch = writeBatch(db);
+            let fixCount = 0;
+
+            for (const memberId of memberIds) {
+                const member = this.allMembers.find(m => m.id === memberId);
+                if (!member) {
+                    console.warn(`ID "${memberId}" のメンバーが見つかりません`);
+                    continue;
+                }
+                console.log(`修正: ${member.lastName} ${member.firstName} のparentIdをnullに設定`);
+                const memberRef = doc(db, 'members', memberId);
+                batch.update(memberRef, { parentId: null, updatedAt: new Date() });
+                member.parentId = null;
+                fixCount++;
+            }
+
+            if (fixCount > 0) {
+                await batch.commit();
+                console.log(`✅ ${fixCount}件の婿入り/嫁入りデータを修正しました！`);
+                alert(`${fixCount}件の婿入り/嫁入りデータを修正しました！ページをリロードしてください。`);
+            } else {
+                console.log('修正対象がありませんでした。');
             }
         }
     };

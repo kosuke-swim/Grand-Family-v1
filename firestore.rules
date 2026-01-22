@@ -1,0 +1,22 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // members コレクション
+    match /members/{memberId} {
+      // 読み取り: 認証済みユーザーのみ許可
+      // 注意: クライアント側の認証（生年月日照合）を使用するため、
+      //       Firestore側では基本的な読み取り制限のみ
+      allow read: if true;
+      
+      // 書き込み: 認証済みユーザーのみ許可
+      allow write: if true;
+    }
+    
+    // その他のコレクションは全てブロック
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

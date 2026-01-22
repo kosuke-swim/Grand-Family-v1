@@ -5,6 +5,7 @@ import Alpine from 'alpinejs';
 import { db } from './firebase.js';
 import adminModule from './modules/admin.js';
 import familyTreeModule from './modules/familyTree.js';
+import authModule from './modules/auth.js';
 
 // ★ 重要: dbはリアクティブデータの外に保持（循環参照問題を回避）
 const firebaseDb = db;
@@ -12,6 +13,7 @@ const firebaseDb = db;
 Alpine.data('mainApp', () => {
     const adminData = adminModule();
     const treeData = familyTreeModule();
+    const authData = authModule();
 
     return {
         // 現在のビュー
@@ -33,6 +35,7 @@ Alpine.data('mainApp', () => {
         // 各モジュールをSpread構文でマージ
         ...adminData,
         ...treeData,
+        ...authData,
 
         // --- Computed Properties ---
 
@@ -322,11 +325,28 @@ Alpine.data('mainApp', () => {
          */
         async init() {
             console.log('Grand-Family App init() called');
-            try {
+
+            // セッション復元を試みる
+            this.checkSession();
+
+            // 認証済みの場合のみメンバーを取得
+            if (this.isAuthenticated) {
+                try {
+                    await this.fetchAllMembers();
+                    console.log('init complete, allMembers:', this.allMembers.length);
+                } catch (error) {
+                    console.error('init error:', error);
+                }
+            }
+        },
+
+        /**
+         * ログイン成功後のデータ読み込み
+         */
+        async onLoginSuccess() {
+            const loggedIn = await this.login();
+            if (loggedIn) {
                 await this.fetchAllMembers();
-                console.log('init complete, allMembers:', this.allMembers.length);
-            } catch (error) {
-                console.error('init error:', error);
             }
         }
     };
