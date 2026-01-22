@@ -524,7 +524,8 @@
 
             <div style="margin-bottom: 16px;">
               <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">生年月日</label>
-              <input type="date" x-model="newMember.birthDate" max="9999-12-31"
+              <input type="text" x-model="newMember.birthDate" placeholder="19900101" inputmode="numeric"
+                @blur="newMember.birthDate = formatDateInput(newMember.birthDate)"
                 style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
             </div>
 
@@ -548,7 +549,8 @@
 
             <div x-show="newMember.registry === 'tengoku'" x-transition style="margin-bottom: 16px;">
               <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">入会日（永眠日）</label>
-              <input type="date" x-model="newMember.passedAt" max="9999-12-31"
+              <input type="text" x-model="newMember.passedAt" placeholder="20200101" inputmode="numeric"
+                @blur="newMember.passedAt = formatDateInput(newMember.passedAt)"
                 style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
             </div>
 
@@ -585,7 +587,8 @@
                 </div>
                 <div style="margin-bottom: 16px;">
                   <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">生年月日</label>
-                  <input type="date" x-model="newSpouse.birthDate" max="9999-12-31"
+                  <input type="text" x-model="newSpouse.birthDate" placeholder="19900101" inputmode="numeric"
+                    @blur="newSpouse.birthDate = formatDateInput(newSpouse.birthDate)"
                     style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
                 </div>
                 <div style="margin-bottom: 16px;">
@@ -609,7 +612,8 @@
                 </div>
                 <div x-show="newSpouse.registry === 'tengoku'" x-transition style="margin-bottom: 16px;">
                   <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">入会日（永眠日）</label>
-                  <input type="date" x-model="newSpouse.passedAt" max="9999-12-31"
+                  <input type="text" x-model="newSpouse.passedAt" placeholder="20200101" inputmode="numeric"
+                    @blur="newSpouse.passedAt = formatDateInput(newSpouse.passedAt)"
                     style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
                 </div>
                 <div
@@ -841,7 +845,8 @@
 
             <div style="margin-bottom: 16px;">
               <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">生年月日</label>
-              <input type="date" x-model="editMember.birthDate" max="9999-12-31"
+              <input type="text" x-model="editMember.birthDate" placeholder="19900101" inputmode="numeric"
+                @blur="editMember.birthDate = formatDateInput(editMember.birthDate)"
                 style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
             </div>
 
@@ -865,7 +870,8 @@
 
             <div x-show="editMember?.registry === 'tengoku'" x-transition style="margin-bottom: 16px;">
               <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">入会日（永眠日）</label>
-              <input type="date" x-model="editMember.passedAt" max="9999-12-31"
+              <input type="text" x-model="editMember.passedAt" placeholder="20200101" inputmode="numeric"
+                @blur="editMember.passedAt = formatDateInput(editMember.passedAt)"
                 style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
             </div>
 
@@ -953,7 +959,8 @@
 
                   <div style="margin-bottom: 12px;">
                     <label style="font-size: 0.75rem; color: #666; display: block; margin-bottom: 4px;">生年月日</label>
-                    <input type="date" x-model="newSpouseForEdit.birthDate" max="9999-12-31"
+                    <input type="text" x-model="newSpouseForEdit.birthDate" placeholder="19900101" inputmode="numeric"
+                      @blur="newSpouseForEdit.birthDate = formatDateInput(newSpouseForEdit.birthDate)"
                       style="width: 100%; padding: 10px 12px; border: 1px solid #e0ddd8; border-radius: 6px; font-size: 0.95rem; background: #FDFBF7;">
                   </div>
 
@@ -979,7 +986,8 @@
 
                   <div x-show="newSpouseForEdit.registry === 'tengoku'" x-transition style="margin-bottom: 12px;">
                     <label style="font-size: 0.75rem; color: #666; display: block; margin-bottom: 4px;">入会日（永眠日）</label>
-                    <input type="date" x-model="newSpouseForEdit.passedAt" max="9999-12-31"
+                    <input type="text" x-model="newSpouseForEdit.passedAt" placeholder="20200101" inputmode="numeric"
+                      @blur="newSpouseForEdit.passedAt = formatDateInput(newSpouseForEdit.passedAt)"
                       style="width: 100%; padding: 10px 12px; border: 1px solid #e0ddd8; border-radius: 6px; font-size: 0.95rem; background: #FDFBF7;">
                   </div>
 

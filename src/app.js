@@ -253,6 +253,22 @@ Alpine.data('mainApp', () => {
             });
         },
 
+
+        /**
+         * 日付入力のフォーマット（8桁数字 → YYYY-MM-DD）
+         * 19900101 → 1990-01-01
+         */
+        formatDateInput(value) {
+            if (!value) return '';
+            // 数字以外を除去
+            const digits = value.replace(/\D/g, '');
+            // 8桁の場合、YYYY-MM-DD形式に変換
+            if (digits.length === 8) {
+                return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
+            }
+            return value;
+        },
+
         // --- Methods ---
 
         /**
