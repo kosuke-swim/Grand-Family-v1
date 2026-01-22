@@ -61,6 +61,9 @@ export default function adminModule() {
             address: ''
         },
 
+        // 情報表示モード用
+        viewMember: null,
+
         // 配偶者検索用（編集モーダル）
         spouseSearchQuery: '',
         showSpouseDropdown: false,
@@ -346,6 +349,31 @@ export default function adminModule() {
                     phone: null
                 }
             ];
+        },
+
+        /**
+         * 情報表示モーダルを開く
+         */
+        openViewMember(member) {
+            this.viewMember = { ...member };
+            const modal = new bootstrap.Modal(document.getElementById('viewMemberModal'));
+            modal.show();
+        },
+
+        /**
+         * 情報表示モーダルから編集モーダルへ遷移
+         */
+        openEditFromView() {
+            if (!this.viewMember) return;
+
+            // 情報モーダルを閉じる
+            const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewMemberModal'));
+            if (viewModal) viewModal.hide();
+
+            // 少し遅延させて編集モーダルを開く（モーダルの切り替えをスムーズに）
+            setTimeout(() => {
+                this.openEditMember(this.viewMember);
+            }, 200);
         },
 
         /**
