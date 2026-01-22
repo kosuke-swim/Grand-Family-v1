@@ -68,6 +68,16 @@ export default function adminModule() {
         spouseSearchQuery: '',
         showSpouseDropdown: false,
 
+        // 配偶者新規登録用（編集モーダル内）
+        showNewSpouseForm: false,
+        newSpouseForEdit: {
+            firstName: '',
+            lastName: '',
+            birthDate: '',
+            registry: 'tengoku',
+            passedAt: null
+        },
+
         // 削除確認モーダル用
         deleteConfirmMessage: '',
         deleteSpouseOption: false,
@@ -406,6 +416,15 @@ export default function adminModule() {
             // 配偶者検索もリセット
             this.spouseSearchQuery = '';
             this.showSpouseDropdown = false;
+            // 配偶者新規登録フォームもリセット
+            this.showNewSpouseForm = false;
+            this.newSpouseForEdit = {
+                firstName: '',
+                lastName: '',
+                birthDate: '',
+                registry: 'tengoku',
+                passedAt: null
+            };
             const modal = bootstrap.Modal.getInstance(document.getElementById('editMemberModal'));
             if (modal) modal.hide();
         },
@@ -557,6 +576,84 @@ export default function adminModule() {
             } catch (error) {
                 console.error('Unlink failed:', error);
                 alert('リンク解除に失敗しました: ' + error.message);
+            }
+        },
+
+        /**
+         * 配偶者新規登録フォームを表示/非表示
+         */
+        toggleNewSpouseForm() {
+            this.showNewSpouseForm = !this.showNewSpouseForm;
+            if (this.showNewSpouseForm) {
+                // 姓を自動コピー
+                this.newSpouseForEdit.lastName = this.editMember?.lastName || '';
+            }
+        },
+
+        /**
+         * 編集モーダル内から配偶者を新規登録
+         */
+        async saveNewSpouseFromEdit() {
+            if (!this.editMember || !this.newSpouseForEdit.firstName) {
+                alert('配偶者の名前を入力してください');
+                return;
+            }
+
+            try {
+                // 新しい配偶者のデータを作成
+                const spouseData = {
+                    firstName: this.newSpouseForEdit.firstName,
+                    lastName: this.newSpouseForEdit.lastName || this.editMember.lastName,
+                    registry: this.newSpouseForEdit.registry,
+                    branchId: this.editMember.branchId,  // 同じ枝番
+                    generation: this.editMember.generation,  // 同じ世代
+                    parentId: null,  // 配偶者は親を持たない（嫁入り/婿入り）
+                    spouseId: this.editMember.id,  // 編集中メンバーとリンク
+                    birthDate: this.newSpouseForEdit.birthDate || null,
+                    passedAt: this.newSpouseForEdit.registry === 'tengoku'
+                        ? this.newSpouseForEdit.passedAt
+                        : null,
+                    address: null,
+                    phone: null,
+                    createdAt: new Date()
+                };
+
+                // Batch書き込みで配偶者登録と相互リンクをアトミックに処理
+                const batch = writeBatch(db);
+                const spouseRef = doc(collection(db, 'members'));
+                batch.set(spouseRef, spouseData);
+
+                // 編集中メンバーのspouseIdを更新
+                const memberRef = doc(db, 'members', this.editMember.id);
+                batch.update(memberRef, { spouseId: spouseRef.id, updatedAt: new Date() });
+
+                await batch.commit();
+                console.log('New spouse saved:', spouseRef.id);
+
+                // ローカルStateに追加
+                this.allMembers.push({ ...spouseData, id: spouseRef.id });
+
+                // 編集中メンバーのローカルStateも更新
+                const memberIndex = this.allMembers.findIndex(m => m.id === this.editMember.id);
+                if (memberIndex !== -1) {
+                    this.allMembers[memberIndex].spouseId = spouseRef.id;
+                }
+                this.editMember.spouseId = spouseRef.id;
+
+                // フォームをリセット
+                this.showNewSpouseForm = false;
+                this.newSpouseForEdit = {
+                    firstName: '',
+                    lastName: '',
+                    birthDate: '',
+                    registry: 'tengoku',
+                    passedAt: null
+                };
+
+                this.showSuccessModal('配偶者を登録しました！');
+            } catch (error) {
+                console.error('Spouse save failed:', error);
+                alert('配偶者の登録に失敗しました: ' + error.message);
             }
         },
 

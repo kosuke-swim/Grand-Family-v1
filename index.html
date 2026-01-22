@@ -382,55 +382,80 @@
     <!-- 新規メンバー登録モーダル -->
     <!-- ======================================== -->
     <div class="modal fade" id="addMemberModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title"><i class="bi bi-person-plus"></i> 新規メンバー登録</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content"
+          style="border: none; border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #FDFBF7 0%, #F5F3EF 100%);">
+
+          <!-- ヘッダー（和モダン） -->
+          <div class="modal-header border-0 pb-2" style="background: transparent;">
+            <div class="w-100 text-center pt-2">
+              <div
+                style="font-family: 'Noto Serif JP', serif; font-size: 1.5rem; font-weight: 500; color: #2F353B; letter-spacing: 0.1em;">
+                新規メンバー登録
+              </div>
+            </div>
+            <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal"
+              style="top: 16px; right: 16px; opacity: 0.5;"></button>
           </div>
-          <div class="modal-body">
+
+          <!-- 区切り線（墨線風） -->
+          <div
+            style="height: 2px; background: linear-gradient(to right, transparent, #2F353B, transparent); opacity: 0.2; margin: 0 40px 16px;">
+          </div>
+
+          <div class="modal-body pt-0" style="padding: 0 24px 16px;">
 
             <!-- 親選択 (インクリメンタル検索) -->
-            <div class="card mb-3 border-primary">
-              <div class="card-header bg-primary text-white">
-                <i class="bi bi-arrow-up-circle"></i> 親（父または母）の選択
+            <div style="background: white; border-radius: 12px; border: 1px solid #e0ddd8; margin-bottom: 20px;">
+              <div style="padding: 12px 16px; border-bottom: 1px solid #e0ddd8;">
+                <span style="font-family: 'Noto Serif JP', serif; color: #2F353B; font-size: 0.95rem;">
+                  <i class="bi bi-arrow-up-circle" style="color: #2D4A6F;"></i> 親（父または母）の選択 <span
+                    class="text-danger">*</span>
+                </span>
               </div>
-              <div class="card-body">
+              <div style="padding: 16px;">
                 <!-- 選択済み表示（クリックで解除） -->
-                <div x-show="newMember.parentId" class="alert alert-success mb-2" style="cursor: pointer;"
+                <div x-show="newMember.parentId"
+                  style="padding: 12px 16px; background: rgba(45, 74, 111, 0.1); border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px;"
                   @click="clearParentSelection()">
-                  <i class="bi bi-check-circle"></i>
+                  <i class="bi bi-check-circle" style="color: #2D4A6F;"></i>
                   <strong x-text="getParentDisplayName(newMember.parentId)"></strong>
-                  <small class="text-muted ms-2">(クリックで変更)</small>
+                  <small style="color: #999; margin-left: auto;">(クリックで変更)</small>
                 </div>
 
                 <!-- 検索入力 -->
-                <div class="input-group" x-show="!newMember.parentId">
-                  <span class="input-group-text"><i class="bi bi-search"></i></span>
-                  <input type="text" class="form-control form-control-lg" x-model="parentSearchQuery"
-                    placeholder="名前で検索..." @focus="showParentDropdown = true">
+                <div x-show="!newMember.parentId" style="position: relative;">
+                  <i class="bi bi-search"
+                    style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999;"></i>
+                  <input type="text" x-model="parentSearchQuery" placeholder="名前で検索..."
+                    @focus="showParentDropdown = true"
+                    style="width: 100%; padding: 14px 14px 14px 42px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
                 </div>
 
                 <!-- 候補リスト -->
-                <div class="list-group mt-2" x-show="!newMember.parentId && parentSearchQuery.length > 0"
-                  style="max-height: 200px; overflow-y: auto;">
+                <div x-show="!newMember.parentId && parentSearchQuery.length > 0"
+                  style="margin-top: 8px; max-height: 200px; overflow-y: auto; border: 1px solid #e0ddd8; border-radius: 8px;">
                   <template x-for="member in filteredParentCandidates" :key="member.id">
-                    <button type="button" class="list-group-item list-group-item-action" @click="selectParent(member)">
-                      <div class="d-flex justify-content-between align-items-center">
+                    <button type="button"
+                      style="width: 100%; padding: 12px 16px; border: none; background: white; text-align: left; border-bottom: 1px solid #f0ede8; cursor: pointer;"
+                      @click="selectParent(member)" onmouseover="this.style.background='#f5f3ef'"
+                      onmouseout="this.style.background='white'">
+                      <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span x-text="`${member.lastName} ${member.firstName}`"></span>
-                        <small class="text-muted"
+                        <small style="color: #999;"
                           x-text="`第${member.generation}世代 - ${branchLabels[member.branchId] || '始祖'}`"></small>
                       </div>
                     </button>
                   </template>
-                  <div class="list-group-item text-muted text-center" x-show="filteredParentCandidates.length === 0">
+                  <div style="padding: 12px; text-align: center; color: #999;"
+                    x-show="filteredParentCandidates.length === 0">
                     候補が見つかりません
                   </div>
                 </div>
 
                 <!-- 全員表示（検索クエリが空の場合）-->
-                <div class="mt-2" x-show="!newMember.parentId && parentSearchQuery.length === 0">
-                  <small class="text-muted">
+                <div style="margin-top: 8px;" x-show="!newMember.parentId && parentSearchQuery.length === 0">
+                  <small style="color: #999;">
                     <i class="bi bi-info-circle"></i> 名前を入力して親を検索してください（登録人数: <span x-text="allMembers.length"></span>名）
                   </small>
                 </div>
@@ -438,150 +463,193 @@
             </div>
 
             <!-- 自動計算フィールド表示 -->
-            <div class="row mb-3" x-show="newMember.parentId" x-transition>
-              <div class="col-6">
-                <label class="form-label"><i class="bi bi-layers"></i> 世代</label>
-                <input type="text" class="form-control bg-light" :value="`第${newMember.generation}世代`" readonly
-                  disabled>
+            <div x-show="newMember.parentId" x-transition
+              style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+              <div>
+                <label style="font-size: 0.8rem; color: #999; display: block; margin-bottom: 4px;">
+                  <i class="bi bi-layers"></i> 世代
+                </label>
+                <div
+                  style="padding: 12px 16px; background: #f5f3ef; border-radius: 8px; font-family: 'Noto Serif JP', serif; color: #2F353B;"
+                  x-text="`第${newMember.generation}世代`"></div>
               </div>
-              <div class="col-6">
-                <label class="form-label"><i class="bi bi-signpost-split"></i> 枝番</label>
+              <div>
+                <label style="font-size: 0.8rem; color: #999; display: block; margin-bottom: 4px;">
+                  <i class="bi bi-signpost-split"></i> 枝番
+                </label>
                 <!-- 始祖が親以外の場合: 読み取り専用 -->
-                <input type="text" class="form-control bg-light" :value="branchLabels[newMember.branchId] || ''"
-                  readonly disabled x-show="selectedParentGeneration > 1">
+                <div x-show="selectedParentGeneration > 1"
+                  style="padding: 12px 16px; background: #f5f3ef; border-radius: 8px; font-family: 'Noto Serif JP', serif; color: #2F353B;"
+                  x-text="branchLabels[newMember.branchId] || ''"></div>
                 <!-- 始祖が親の場合: 枝番を手動選択 -->
-                <select class="form-select" x-model.number="newMember.branchId" x-show="selectedParentGeneration === 1"
-                  :class="{ 'border-danger': selectedParentGeneration === 1 && !newMember.branchId }">
+                <select x-model.number="newMember.branchId" x-show="selectedParentGeneration === 1"
+                  style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;"
+                  :style="selectedParentGeneration === 1 && !newMember.branchId ? 'border-color: #c0392b;' : ''">
                   <option value="">枝番を選択 *</option>
                   <template x-for="i in 9" :key="i">
                     <option :value="i" x-text="branchLabels[i]"></option>
                   </template>
                 </select>
-                <small class="text-danger" x-show="selectedParentGeneration === 1 && !newMember.branchId">
-                  <i class="bi bi-exclamation-triangle"></i> 枝番を選択してください（必須）
+                <small x-show="selectedParentGeneration === 1 && !newMember.branchId"
+                  style="color: #c0392b; font-size: 0.75rem;">
+                  <i class="bi bi-exclamation-triangle"></i> 枝番を選択してください
                 </small>
               </div>
             </div>
 
-            <hr>
+            <!-- 区切り線 -->
+            <div style="height: 1px; background: #e0ddd8; margin: 0 0 20px;"></div>
 
             <!-- 基本情報 -->
-            <h6 class="text-muted mb-3"><i class="bi bi-person"></i> 基本情報</h6>
-
-            <div class="row mb-3">
-              <div class="col-6">
-                <label class="form-label">姓 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" x-model="newMember.lastName" placeholder="山田">
-              </div>
-              <div class="col-6">
-                <label class="form-label">名 <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" x-model="newMember.firstName" placeholder="太郎">
-              </div>
+            <div style="font-family: 'Noto Serif JP', serif; font-size: 0.95rem; color: #2F353B; margin-bottom: 16px;">
+              <i class="bi bi-person" style="color: #4a5d23;"></i> 基本情報
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">生年月日</label>
-              <input type="date" class="form-control" x-model="newMember.birthDate">
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label">登録区分</label>
-              <div class="btn-group w-100" role="group">
-                <input type="radio" class="btn-check" name="registry" id="registryMagomago" value="magomago"
-                  x-model="newMember.registry">
-                <label class="btn btn-outline-success" for="registryMagomago">
-                  <i class="bi bi-emoji-smile"></i> まごまご会（生存）
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div>
+                <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">
+                  姓 <span style="color: #c0392b;">*</span>
                 </label>
+                <input type="text" x-model="newMember.lastName" placeholder="山田"
+                  style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
+              </div>
+              <div>
+                <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">
+                  名 <span style="color: #c0392b;">*</span>
+                </label>
+                <input type="text" x-model="newMember.firstName" placeholder="太郎"
+                  style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
+              </div>
+            </div>
 
-                <input type="radio" class="btn-check" name="registry" id="registryTengoku" value="tengoku"
-                  x-model="newMember.registry">
-                <label class="btn btn-outline-info" for="registryTengoku">
-                  <i class="bi bi-cloud"></i> 天国会（故人）
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">生年月日</label>
+              <input type="date" x-model="newMember.birthDate" max="9999-12-31"
+                style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 8px;">登録区分</label>
+              <div style="display: flex; gap: 12px;">
+                <label @click="newMember.registry = 'magomago'"
+                  style="flex: 1; padding: 12px 16px; border-radius: 8px; cursor: pointer; text-align: center;" :style="newMember.registry === 'magomago' 
+                    ? { background: '#4a5d23', color: 'white', border: '1px solid #4a5d23' } 
+                    : { background: 'white', color: '#666', border: '1px solid #e0ddd8' }">
+                  <i class="bi bi-emoji-smile"></i> まごまご会
+                </label>
+                <label @click="newMember.registry = 'tengoku'"
+                  style="flex: 1; padding: 12px 16px; border-radius: 8px; cursor: pointer; text-align: center;" :style="newMember.registry === 'tengoku' 
+                    ? { background: '#8B8B8B', color: 'white', border: '1px solid #8B8B8B' } 
+                    : { background: 'white', color: '#666', border: '1px solid #e0ddd8' }">
+                  🕊️ 天国会
                 </label>
               </div>
             </div>
 
-            <div class="mb-3" x-show="newMember.registry === 'tengoku'" x-transition>
-              <label class="form-label">入会日</label>
-              <input type="date" class="form-control" x-model="newMember.passedAt">
+            <div x-show="newMember.registry === 'tengoku'" x-transition style="margin-bottom: 16px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">入会日（永眠日）</label>
+              <input type="date" x-model="newMember.passedAt" max="9999-12-31"
+                style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
             </div>
 
-            <hr>
+            <!-- 区切り線 -->
+            <div style="height: 1px; background: #e0ddd8; margin: 0 0 20px;"></div>
 
             <!-- 配偶者同時登録 -->
-            <div class="card mb-3" :class="addSpouseTogether ? 'border-primary' : 'border-secondary'">
-              <div class="card-header d-flex align-items-center gap-2" style="cursor: pointer;"
+            <div style="background: white; border-radius: 12px; border: 1px solid #e0ddd8; margin-bottom: 20px;"
+              :style="addSpouseTogether ? 'border-color: #c0392b;' : ''">
+              <div
+                style="padding: 12px 16px; border-bottom: 1px solid #e0ddd8; cursor: pointer; display: flex; align-items: center; gap: 12px;"
                 @click="addSpouseTogether = !addSpouseTogether">
-                <input type="checkbox" class="form-check-input" x-model="addSpouseTogether" @click.stop>
-                <i class="bi bi-heart-fill text-danger"></i>
-                <span>配偶者も一緒に登録する</span>
+                <input type="checkbox" x-model="addSpouseTogether" @click.stop
+                  style="width: 18px; height: 18px; accent-color: #c0392b;">
+                <span style="color: #c0392b;">♥</span>
+                <span style="font-family: 'Noto Serif JP', serif; color: #2F353B;">配偶者も一緒に登録する</span>
               </div>
-              <div class="card-body" x-show="addSpouseTogether" x-transition>
-                <div class="row mb-3">
-                  <div class="col-6">
-                    <label class="form-label">配偶者の姓</label>
-                    <input type="text" class="form-control" x-model="newSpouse.lastName"
-                      :placeholder="newMember.lastName || '山田'"
-                      x-init="$watch('newMember.lastName', val => { if (!newSpouse.lastName) newSpouse.lastName = val; })">
-                    <small class="text-muted">本人の姓から自動コピー（編集可）</small>
+              <div x-show="addSpouseTogether" x-transition style="padding: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                  <div>
+                    <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">配偶者の姓</label>
+                    <input type="text" x-model="newSpouse.lastName" :placeholder="newMember.lastName || '山田'"
+                      x-init="$watch('newMember.lastName', val => { if (!newSpouse.lastName) newSpouse.lastName = val; })"
+                      style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
+                    <small style="color: #999; font-size: 0.75rem;">本人の姓から自動コピー</small>
                   </div>
-                  <div class="col-6">
-                    <label class="form-label">配偶者の名 <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" x-model="newSpouse.firstName" placeholder="花子">
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">生年月日</label>
-                  <input type="date" class="form-control" x-model="newSpouse.birthDate">
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">登録区分</label>
-                  <div class="btn-group w-100" role="group">
-                    <input type="radio" class="btn-check" name="spouseRegistry" id="spouseRegistryMagomago"
-                      value="magomago" x-model="newSpouse.registry">
-                    <label class="btn btn-outline-success" for="spouseRegistryMagomago">
-                      <i class="bi bi-emoji-smile"></i> まごまご会
+                  <div>
+                    <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">
+                      配偶者の名 <span style="color: #c0392b;">*</span>
                     </label>
-                    <input type="radio" class="btn-check" name="spouseRegistry" id="spouseRegistryTengoku"
-                      value="tengoku" x-model="newSpouse.registry">
-                    <label class="btn btn-outline-info" for="spouseRegistryTengoku">
-                      <i class="bi bi-cloud"></i> 天国会
+                    <input type="text" x-model="newSpouse.firstName" placeholder="花子"
+                      style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
+                  </div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                  <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">生年月日</label>
+                  <input type="date" x-model="newSpouse.birthDate" max="9999-12-31"
+                    style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
+                </div>
+                <div style="margin-bottom: 16px;">
+                  <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 8px;">登録区分</label>
+                  <div style="display: flex; gap: 12px;">
+                    <label @click="newSpouse.registry = 'magomago'"
+                      style="flex: 1; padding: 10px 12px; border-radius: 8px; cursor: pointer; text-align: center; font-size: 0.9rem;"
+                      :style="newSpouse.registry === 'magomago' 
+                        ? { background: '#4a5d23', color: 'white', border: '1px solid #4a5d23' } 
+                        : { background: '#FDFBF7', color: '#666', border: '1px solid #e0ddd8' }">
+                      まごまご会
+                    </label>
+                    <label @click="newSpouse.registry = 'tengoku'"
+                      style="flex: 1; padding: 10px 12px; border-radius: 8px; cursor: pointer; text-align: center; font-size: 0.9rem;"
+                      :style="newSpouse.registry === 'tengoku' 
+                        ? { background: '#8B8B8B', color: 'white', border: '1px solid #8B8B8B' } 
+                        : { background: '#FDFBF7', color: '#666', border: '1px solid #e0ddd8' }">
+                      🕊️ 天国会
                     </label>
                   </div>
                 </div>
-                <div class="mb-3" x-show="newSpouse.registry === 'tengoku'" x-transition>
-                  <label class="form-label">入会日</label>
-                  <input type="date" class="form-control" x-model="newSpouse.passedAt">
+                <div x-show="newSpouse.registry === 'tengoku'" x-transition style="margin-bottom: 16px;">
+                  <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">入会日（永眠日）</label>
+                  <input type="date" x-model="newSpouse.passedAt" max="9999-12-31"
+                    style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
                 </div>
-                <div class="alert alert-info mb-0">
+                <div
+                  style="padding: 12px; background: rgba(74, 93, 35, 0.08); border-radius: 8px; color: #4a5d23; font-size: 0.85rem;">
                   <i class="bi bi-info-circle"></i>
                   本人と配偶者は相互にリンクされ、家系図で横並びに表示されます。
                 </div>
               </div>
             </div>
 
-            <hr>
+            <!-- 区切り線 -->
+            <div style="height: 1px; background: #e0ddd8; margin: 0 0 20px;"></div>
 
             <!-- 連絡先情報 -->
-            <h6 class="text-muted mb-3"><i class="bi bi-telephone"></i> 連絡先情報</h6>
-
-            <div class="mb-3">
-              <label class="form-label">電話番号</label>
-              <input type="tel" class="form-control" x-model="newMember.phone" placeholder="090-1234-5678">
+            <div style="font-family: 'Noto Serif JP', serif; font-size: 0.95rem; color: #2F353B; margin-bottom: 16px;">
+              <i class="bi bi-telephone" style="color: #4a5d23;"></i> 連絡先情報
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">住所</label>
-              <textarea class="form-control" rows="2" x-model="newMember.address" placeholder="東京都渋谷区..."></textarea>
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">電話番号</label>
+              <input type="tel" x-model="newMember.phone" placeholder="090-1234-5678"
+                style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">住所</label>
+              <textarea x-model="newMember.address" placeholder="東京都渋谷区..." rows="2"
+                style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7; resize: vertical;"></textarea>
             </div>
           </div>
 
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-              <i class="bi bi-x-lg"></i> キャンセル
+          <div class="modal-footer border-0 justify-content-center gap-3 pb-4" style="background: transparent;">
+            <button type="button" class="btn" data-bs-dismiss="modal"
+              style="padding: 12px 28px; border: 1px solid #d0cdc8; background: white; color: #666; border-radius: 24px; font-size: 0.95rem;">
+              キャンセル
             </button>
-            <button type="button" class="btn btn-primary" @click="saveMember()" :disabled="!isFormValid">
-              <i class="bi bi-check-lg"></i> 登録する
+            <button type="button" class="btn" @click="saveMember()" :disabled="!isFormValid"
+              style="padding: 12px 28px; background: #4a5d23; color: white; border: none; border-radius: 24px; font-size: 0.95rem;"
+              :style="!isFormValid ? 'opacity: 0.5; cursor: not-allowed;' : ''">
+              <i class="bi bi-check-lg me-1"></i> 登録する
             </button>
           </div>
         </div>
@@ -716,143 +784,255 @@
     </div>
 
     <!-- ======================================== -->
-    <!-- メンバー編集モーダル -->
+    <!-- メンバー編集モーダル（和モダン） -->
     <!-- ======================================== -->
     <div class="modal fade" id="editMemberModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content" x-show="editMember">
-          <div class="modal-header bg-warning text-dark">
-            <h5 class="modal-title"><i class="bi bi-pencil"></i> メンバー情報編集</h5>
-            <button type="button" class="btn-close" @click="cancelEdit()"></button>
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" x-show="editMember"
+          style="border: none; border-radius: 16px; overflow: hidden; background: linear-gradient(135deg, #FDFBF7 0%, #F5F3EF 100%);">
+
+          <!-- ヘッダー -->
+          <div class="modal-header border-0 pb-2" style="background: transparent;">
+            <div class="w-100 text-center pt-2">
+              <div
+                style="font-family: 'Noto Serif JP', serif; font-size: 1.5rem; font-weight: 500; color: #2F353B; letter-spacing: 0.1em;">
+                メンバー情報編集
+              </div>
+            </div>
+            <button type="button" class="btn-close position-absolute" @click="cancelEdit()"
+              style="top: 16px; right: 16px; opacity: 0.5;"></button>
           </div>
-          <div class="modal-body">
+
+          <!-- 区切り線 -->
+          <div
+            style="height: 2px; background: linear-gradient(to right, transparent, #2F353B, transparent); opacity: 0.2; margin: 0 40px 16px;">
+          </div>
+
+          <div class="modal-body pt-0" style="padding: 0 24px 16px;">
+
             <!-- 読み取り専用情報 -->
-            <div class="alert alert-light mb-3">
-              <small class="text-muted">
-                <i class="bi bi-info-circle"></i>
-                世代と枝番は変更できません
+            <div style="padding: 12px; background: rgba(45, 74, 111, 0.08); border-radius: 8px; margin-bottom: 20px;">
+              <small style="color: #666;">
+                <i class="bi bi-info-circle"></i> 世代と枝番は変更できません
               </small>
-              <div class="mt-2">
-                <span class="badge bg-secondary" x-text="`第${editMember?.generation}世代`"></span>
-                <span class="badge bg-secondary ms-1" x-text="branchLabels[editMember?.branchId] || '始祖'"></span>
+              <div style="margin-top: 8px; display: flex; gap: 8px;">
+                <span
+                  style="padding: 4px 12px; background: #2D4A6F; color: white; border-radius: 12px; font-size: 0.8rem;"
+                  x-text="`第${editMember?.generation}世代`"></span>
+                <span
+                  style="padding: 4px 12px; background: #2D4A6F; color: white; border-radius: 12px; font-size: 0.8rem;"
+                  x-text="branchLabels[editMember?.branchId] || '始祖'"></span>
               </div>
             </div>
 
             <!-- 基本情報 -->
-            <div class="row mb-3">
-              <div class="col-6">
-                <label class="form-label">姓</label>
-                <input type="text" class="form-control" x-model="editMember.lastName">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div>
+                <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">姓</label>
+                <input type="text" x-model="editMember.lastName"
+                  style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
               </div>
-              <div class="col-6">
-                <label class="form-label">名</label>
-                <input type="text" class="form-control" x-model="editMember.firstName">
+              <div>
+                <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">名</label>
+                <input type="text" x-model="editMember.firstName"
+                  style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
               </div>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">生年月日</label>
-              <input type="date" class="form-control" x-model="editMember.birthDate">
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">生年月日</label>
+              <input type="date" x-model="editMember.birthDate" max="9999-12-31"
+                style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">登録区分</label>
-              <div class="btn-group w-100" role="group">
-                <input type="radio" class="btn-check" name="editRegistry" id="editRegistryMagomago" value="magomago"
-                  x-model="editMember.registry">
-                <label class="btn btn-outline-success" for="editRegistryMagomago">
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 8px;">登録区分</label>
+              <div style="display: flex; gap: 12px;">
+                <label @click="editMember.registry = 'magomago'"
+                  style="flex: 1; padding: 12px 16px; border-radius: 8px; cursor: pointer; text-align: center;" :style="editMember.registry === 'magomago' 
+                    ? { background: '#4a5d23', color: 'white', border: '1px solid #4a5d23' } 
+                    : { background: 'white', color: '#666', border: '1px solid #e0ddd8' }">
                   <i class="bi bi-emoji-smile"></i> まごまご会
                 </label>
-
-                <input type="radio" class="btn-check" name="editRegistry" id="editRegistryTengoku" value="tengoku"
-                  x-model="editMember.registry">
-                <label class="btn btn-outline-info" for="editRegistryTengoku">
-                  <i class="bi bi-cloud"></i> 天国会
+                <label @click="editMember.registry = 'tengoku'"
+                  style="flex: 1; padding: 12px 16px; border-radius: 8px; cursor: pointer; text-align: center;" :style="editMember.registry === 'tengoku' 
+                    ? { background: '#8B8B8B', color: 'white', border: '1px solid #8B8B8B' } 
+                    : { background: 'white', color: '#666', border: '1px solid #e0ddd8' }">
+                  🕊️ 天国会
                 </label>
               </div>
             </div>
 
-            <div class="mb-3" x-show="editMember?.registry === 'tengoku'" x-transition>
-              <label class="form-label">入会日</label>
-              <input type="date" class="form-control" x-model="editMember.passedAt">
+            <div x-show="editMember?.registry === 'tengoku'" x-transition style="margin-bottom: 16px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">入会日（永眠日）</label>
+              <input type="date" x-model="editMember.passedAt" max="9999-12-31"
+                style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
             </div>
 
             <!-- 配偶者情報 -->
-            <div class="mb-3">
-              <label class="form-label"><i class="bi bi-heart-fill text-danger"></i> 配偶者</label>
+            <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 8px;">
+                <span style="color: #c0392b;">♥</span> 配偶者
+              </label>
 
               <!-- 配偶者が設定されている場合 -->
-              <div x-show="editMember?.spouseId" class="card border-danger">
-                <div class="card-body d-flex justify-content-between align-items-center py-2">
-                  <span>
-                    <i class="bi bi-heart text-danger"></i>
-                    <strong x-text="getSpouseDisplayName(editMember?.spouseId)"></strong>
-                  </span>
-                  <button type="button" class="btn btn-outline-secondary btn-sm" @click="unlinkSpouse()">
-                    <i class="bi bi-link-45deg"></i> リンク解除
-                  </button>
-                </div>
+              <div x-show="editMember?.spouseId"
+                style="padding: 12px 16px; background: white; border: 1px solid #e0ddd8; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <span>
+                  <span style="color: #c0392b;">♥</span>
+                  <strong x-text="getSpouseDisplayName(editMember?.spouseId)"></strong>
+                </span>
+                <button type="button" @click="unlinkSpouse()"
+                  style="padding: 6px 12px; border: 1px solid #d0cdc8; background: white; color: #666; border-radius: 16px; font-size: 0.8rem; cursor: pointer;">
+                  リンク解除
+                </button>
               </div>
 
               <!-- 配偶者が設定されていない場合：検索式 -->
               <div x-show="!editMember?.spouseId">
                 <!-- 検索入力 -->
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-search"></i></span>
-                  <input type="text" class="form-control" x-model="spouseSearchQuery" placeholder="名前で配偶者を検索..."
-                    @focus="showSpouseDropdown = true">
+                <div style="position: relative;" x-show="!showNewSpouseForm">
+                  <i class="bi bi-search"
+                    style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999;"></i>
+                  <input type="text" x-model="spouseSearchQuery" placeholder="名前で配偶者を検索..."
+                    @focus="showSpouseDropdown = true"
+                    style="width: 100%; padding: 12px 12px 12px 42px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
                 </div>
 
                 <!-- 候補リスト -->
-                <div class="list-group mt-2" x-show="spouseSearchQuery.length > 0"
-                  style="max-height: 200px; overflow-y: auto;">
+                <div x-show="spouseSearchQuery.length > 0 && !showNewSpouseForm"
+                  style="margin-top: 8px; max-height: 150px; overflow-y: auto; border: 1px solid #e0ddd8; border-radius: 8px;">
                   <template x-for="member in filteredSpouseCandidates" :key="member.id">
-                    <button type="button" class="list-group-item list-group-item-action" @click="selectSpouse(member)">
-                      <div class="d-flex justify-content-between align-items-center">
+                    <button type="button" @click="selectSpouse(member)"
+                      style="width: 100%; padding: 10px 14px; border: none; background: white; text-align: left; border-bottom: 1px solid #f0ede8; cursor: pointer;"
+                      onmouseover="this.style.background='#f5f3ef'" onmouseout="this.style.background='white'">
+                      <div style="display: flex; justify-content: space-between; align-items: center;">
                         <span x-text="`${member.lastName} ${member.firstName}`"></span>
-                        <small class="text-muted"
-                          x-text="`第${member.generation}世代 - ${branchLabels[member.branchId] || '始祖'}`"></small>
+                        <small style="color: #999;" x-text="`第${member.generation}世代`"></small>
                       </div>
                     </button>
                   </template>
-                  <div class="list-group-item text-muted text-center" x-show="filteredSpouseCandidates.length === 0">
+                  <div style="padding: 10px; text-align: center; color: #999;"
+                    x-show="filteredSpouseCandidates.length === 0">
                     候補が見つかりません
                   </div>
                 </div>
 
-                <!-- 説明 -->
-                <small class="text-muted mt-2 d-block" x-show="spouseSearchQuery.length === 0">
+                <small style="color: #999; margin-top: 6px; display: block;"
+                  x-show="spouseSearchQuery.length === 0 && !showNewSpouseForm">
                   <i class="bi bi-info-circle"></i> 名前を入力して配偶者を検索してください
                 </small>
+
+                <!-- 配偶者を新規登録ボタン -->
+                <button type="button" @click="toggleNewSpouseForm()" x-show="!showNewSpouseForm"
+                  style="margin-top: 12px; width: 100%; padding: 10px 16px; border: 1px dashed #c0392b; background: rgba(192, 57, 43, 0.05); color: #c0392b; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">
+                  <i class="bi bi-plus-circle"></i> 配偶者を新規登録
+                </button>
+
+                <!-- 配偶者新規登録フォーム -->
+                <div x-show="showNewSpouseForm" x-transition
+                  style="margin-top: 12px; padding: 16px; background: white; border: 1px solid #c0392b; border-radius: 12px;">
+                  <div style="font-size: 0.9rem; color: #c0392b; margin-bottom: 12px; font-weight: 500;">
+                    <i class="bi bi-heart-fill"></i> 配偶者を新規登録
+                  </div>
+
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                      <label style="font-size: 0.75rem; color: #666; display: block; margin-bottom: 4px;">姓</label>
+                      <input type="text" x-model="newSpouseForEdit.lastName" :placeholder="editMember?.lastName || '山田'"
+                        style="width: 100%; padding: 10px 12px; border: 1px solid #e0ddd8; border-radius: 6px; font-size: 0.95rem; background: #FDFBF7;">
+                    </div>
+                    <div>
+                      <label style="font-size: 0.75rem; color: #666; display: block; margin-bottom: 4px;">
+                        名 <span style="color: #c0392b;">*</span>
+                      </label>
+                      <input type="text" x-model="newSpouseForEdit.firstName" placeholder="花子"
+                        style="width: 100%; padding: 10px 12px; border: 1px solid #e0ddd8; border-radius: 6px; font-size: 0.95rem; background: #FDFBF7;">
+                    </div>
+                  </div>
+
+                  <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; color: #666; display: block; margin-bottom: 4px;">生年月日</label>
+                    <input type="date" x-model="newSpouseForEdit.birthDate" max="9999-12-31"
+                      style="width: 100%; padding: 10px 12px; border: 1px solid #e0ddd8; border-radius: 6px; font-size: 0.95rem; background: #FDFBF7;">
+                  </div>
+
+                  <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; color: #666; display: block; margin-bottom: 6px;">登録区分</label>
+                    <div style="display: flex; gap: 8px;">
+                      <label @click="newSpouseForEdit.registry = 'magomago'"
+                        style="flex: 1; padding: 8px 10px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 0.85rem;"
+                        :style="newSpouseForEdit.registry === 'magomago' 
+                          ? { background: '#4a5d23', color: 'white', border: '1px solid #4a5d23' } 
+                          : { background: '#FDFBF7', color: '#666', border: '1px solid #e0ddd8' }">
+                        まごまご会
+                      </label>
+                      <label @click="newSpouseForEdit.registry = 'tengoku'"
+                        style="flex: 1; padding: 8px 10px; border-radius: 6px; cursor: pointer; text-align: center; font-size: 0.85rem;"
+                        :style="newSpouseForEdit.registry === 'tengoku' 
+                          ? { background: '#8B8B8B', color: 'white', border: '1px solid #8B8B8B' } 
+                          : { background: '#FDFBF7', color: '#666', border: '1px solid #e0ddd8' }">
+                        🕊️ 天国会
+                      </label>
+                    </div>
+                  </div>
+
+                  <div x-show="newSpouseForEdit.registry === 'tengoku'" x-transition style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; color: #666; display: block; margin-bottom: 4px;">入会日（永眠日）</label>
+                    <input type="date" x-model="newSpouseForEdit.passedAt" max="9999-12-31"
+                      style="width: 100%; padding: 10px 12px; border: 1px solid #e0ddd8; border-radius: 6px; font-size: 0.95rem; background: #FDFBF7;">
+                  </div>
+
+                  <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button type="button" @click="showNewSpouseForm = false"
+                      style="padding: 8px 16px; border: 1px solid #d0cdc8; background: white; color: #666; border-radius: 20px; font-size: 0.85rem; cursor: pointer;">
+                      キャンセル
+                    </button>
+                    <button type="button" @click="saveNewSpouseFromEdit()"
+                      style="padding: 8px 16px; background: #c0392b; color: white; border: none; border-radius: 20px; font-size: 0.85rem; cursor: pointer;">
+                      <i class="bi bi-check-lg"></i> 登録
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <hr>
+            <!-- 区切り線 -->
+            <div style="height: 1px; background: #e0ddd8; margin: 0 0 16px;"></div>
 
             <!-- 連絡先情報 -->
-            <h6 class="text-muted mb-3"><i class="bi bi-telephone"></i> 連絡先情報</h6>
-
-            <div class="mb-3">
-              <label class="form-label">電話番号</label>
-              <input type="tel" class="form-control" x-model="editMember.phone" placeholder="090-1234-5678">
+            <div style="font-family: 'Noto Serif JP', serif; font-size: 0.95rem; color: #2F353B; margin-bottom: 12px;">
+              <i class="bi bi-telephone" style="color: #2D4A6F;"></i> 連絡先情報
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">住所</label>
-              <textarea class="form-control" rows="2" x-model="editMember.address" placeholder="東京都渋谷区..."></textarea>
+            <div style="margin-bottom: 12px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">電話番号</label>
+              <input type="tel" x-model="editMember.phone" placeholder="090-1234-5678"
+                style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
+            </div>
+
+            <div style="margin-bottom: 8px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">住所</label>
+              <textarea x-model="editMember.address" placeholder="東京都渋谷区..." rows="2"
+                style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7; resize: vertical;"></textarea>
             </div>
           </div>
 
-          <div class="modal-footer d-flex justify-content-between">
-            <button type="button" class="btn btn-outline-danger" @click="deleteMember()">
+          <!-- フッター -->
+          <div class="modal-footer border-0 pb-4"
+            style="background: transparent; display: flex; justify-content: space-between; padding: 0 24px;">
+            <button type="button" @click="deleteMember()"
+              style="padding: 10px 20px; border: 1px solid #c0392b; background: white; color: #c0392b; border-radius: 24px; font-size: 0.9rem; cursor: pointer;">
               <i class="bi bi-trash"></i> 削除
             </button>
-            <div>
-              <button type="button" class="btn btn-secondary" @click="cancelEdit()">
-                <i class="bi bi-x-lg"></i> キャンセル
+            <div style="display: flex; gap: 12px;">
+              <button type="button" @click="cancelEdit()"
+                style="padding: 10px 24px; border: 1px solid #d0cdc8; background: white; color: #666; border-radius: 24px; font-size: 0.9rem; cursor: pointer;">
+                キャンセル
               </button>
-              <button type="button" class="btn btn-warning" @click="saveEdit()">
-                <i class="bi bi-check-lg"></i> 更新する
+              <button type="button" @click="saveEdit()"
+                style="padding: 10px 24px; background: #2D4A6F; color: white; border: none; border-radius: 24px; font-size: 0.9rem; cursor: pointer;">
+                <i class="bi bi-check-lg me-1"></i> 更新する
               </button>
             </div>
           </div>
