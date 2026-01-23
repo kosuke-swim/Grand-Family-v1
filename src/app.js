@@ -2,7 +2,7 @@
 // Fitness-v4のアーキテクチャに準拠: 単一Stateオブジェクト + Spread構文でモジュールをマージ
 
 import Alpine from 'alpinejs';
-import { db } from './firebase.js';
+import { db, initializeFirebaseAuth } from './firebase.js';
 import adminModule from './modules/admin.js';
 import familyTreeModule from './modules/familyTree.js';
 import authModule from './modules/auth.js';
@@ -341,6 +341,14 @@ Alpine.data('mainApp', () => {
          */
         async init() {
             console.log('Grand-Family App init() called');
+
+            // Firebase匿名認証を初期化（Firestoreルールでrequest.authを使用するため必須）
+            try {
+                await initializeFirebaseAuth();
+            } catch (error) {
+                console.error('Firebase Auth初期化エラー:', error);
+                // 認証に失敗してもアプリは起動させる（エラー表示は後で検討）
+            }
 
             // セッション復元を試みる
             this.checkSession();

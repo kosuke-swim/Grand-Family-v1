@@ -222,7 +222,8 @@
                         </template>
                       </div>
                     </div>
-                    <button class="btn btn-outline-secondary btn-sm" @click.stop="openEditMember(member)">
+                    <button class="btn btn-link text-muted p-0" style="font-size: 0.7rem; opacity: 0.4;"
+                      @click.stop="openEditMember(member)" title="情報を修正">
                       <i class="bi bi-pencil"></i>
                     </button>
                   </div>
@@ -327,7 +328,8 @@
                           </template>
                         </div>
                       </div>
-                      <button class="btn btn-outline-secondary btn-sm" @click.stop="openEditMember(member)">
+                      <button class="btn btn-link text-muted p-0" style="font-size: 0.7rem; opacity: 0.4;"
+                        @click.stop="openEditMember(member)" title="情報を修正">
                         <i class="bi bi-pencil"></i>
                       </button>
                     </div>
@@ -347,7 +349,7 @@
         class="position-relative">
 
         <!-- 家系図コンテナ -->
-        <div id="family-tree-container" class="family-tree-washi rounded" style="min-height: 500px; overflow: hidden;">
+        <div id="family-tree-container" class="family-tree-washi">
         </div>
 
         <!-- コントロール・ドック（右下フロート） -->
@@ -523,6 +525,18 @@
             </div>
 
             <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">
+                <i class="bi bi-translate" style="color: #2D4A6F;"></i> ローマ字表記
+              </label>
+              <input type="text" x-model="newMember.romanizedName" placeholder="Taro Yamada"
+                @blur="newMember.romanizedName = formatRomanizedName(newMember.romanizedName)"
+                style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7; font-style: italic;">
+              <small style="color: #999; font-size: 0.75rem;">
+                <i class="bi bi-info-circle"></i> 入力後、自動的に Taro Yamada 形式に変換されます
+              </small>
+            </div>
+
+            <div style="margin-bottom: 16px;">
               <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">生年月日</label>
               <input type="text" x-model="newMember.birthDate" placeholder="19900101" inputmode="numeric"
                 @blur="newMember.birthDate = formatDateInput(newMember.birthDate)"
@@ -584,6 +598,14 @@
                     <input type="text" x-model="newSpouse.firstName" placeholder="花子"
                       style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7;">
                   </div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                  <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">
+                    <i class="bi bi-translate" style="color: #2D4A6F;"></i> ローマ字表記
+                  </label>
+                  <input type="text" x-model="newSpouse.romanizedName" placeholder="Hanako Yamada"
+                    @blur="newSpouse.romanizedName = formatRomanizedName(newSpouse.romanizedName)"
+                    style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7; font-style: italic;">
                 </div>
                 <div style="margin-bottom: 16px;">
                   <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">生年月日</label>
@@ -679,6 +701,11 @@
               <div
                 style="font-family: 'Noto Serif JP', serif; font-size: 1.75rem; font-weight: 500; color: #2F353B; letter-spacing: 0.1em;"
                 x-text="`${viewMember?.lastName} ${viewMember?.firstName}`"></div>
+
+              <!-- ローマ字表記（スタイリッシュな表示） -->
+              <div x-show="viewMember?.romanizedName"
+                style="font-family: 'Times New Roman', serif; font-size: 0.95rem; font-style: italic; color: #666; letter-spacing: 0.05em; margin-top: 4px;"
+                x-text="viewMember?.romanizedName"></div>
 
               <!-- 天国会員は鳩マーク -->
               <div x-show="viewMember?.registry === 'tengoku'" class="mt-2" style="color: #8B8B8B; font-size: 0.9rem;">
@@ -844,6 +871,15 @@
             </div>
 
             <div style="margin-bottom: 16px;">
+              <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">
+                <i class="bi bi-translate" style="color: #2D4A6F;"></i> ローマ字表記
+              </label>
+              <input type="text" x-model="editMember.romanizedName" placeholder="Taro Yamada"
+                @blur="editMember.romanizedName = formatRomanizedName(editMember.romanizedName)"
+                style="width: 100%; padding: 12px 16px; border: 1px solid #e0ddd8; border-radius: 8px; font-size: 1rem; background: #FDFBF7; font-style: italic;">
+            </div>
+
+            <div style="margin-bottom: 16px;">
               <label style="font-size: 0.8rem; color: #666; display: block; margin-bottom: 4px;">生年月日</label>
               <input type="text" x-model="editMember.birthDate" placeholder="19900101" inputmode="numeric"
                 @blur="editMember.birthDate = formatDateInput(editMember.birthDate)"
@@ -955,6 +991,15 @@
                       <input type="text" x-model="newSpouseForEdit.firstName" placeholder="花子"
                         style="width: 100%; padding: 10px 12px; border: 1px solid #e0ddd8; border-radius: 6px; font-size: 0.95rem; background: #FDFBF7;">
                     </div>
+                  </div>
+
+                  <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.75rem; color: #666; display: block; margin-bottom: 4px;">
+                      <i class="bi bi-translate" style="color: #2D4A6F;"></i> ローマ字表記
+                    </label>
+                    <input type="text" x-model="newSpouseForEdit.romanizedName" placeholder="Hanako Yamada"
+                      @blur="newSpouseForEdit.romanizedName = formatRomanizedName(newSpouseForEdit.romanizedName)"
+                      style="width: 100%; padding: 10px 12px; border: 1px solid #e0ddd8; border-radius: 6px; font-size: 0.95rem; background: #FDFBF7; font-style: italic;">
                   </div>
 
                   <div style="margin-bottom: 12px;">

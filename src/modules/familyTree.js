@@ -471,6 +471,11 @@ export default function familyTreeModule() {
             popover.innerHTML = `
                 <button class="close-btn" onclick="this.parentElement.remove()">×</button>
                 <h5>${member.lastName} ${member.firstName}</h5>
+                ${member.romanizedName ? `
+                <div style="font-family: 'Times New Roman', serif; font-size: 0.85rem; font-style: italic; color: #666; margin-bottom: 8px;">
+                    ${member.romanizedName}
+                </div>
+                ` : ''}
                 <div class="detail-row">
                     <span class="detail-label">世代</span>
                     <span>第${member.generation}世代</span>

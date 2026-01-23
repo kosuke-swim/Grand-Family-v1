@@ -3,20 +3,62 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // ====================================
     // members コレクション
+    // ====================================
     match /members/{memberId} {
-      // 読み取り: 認証済みユーザーのみ許可
-      // 注意: クライアント側の認証（生年月日照合）を使用するため、
-      //       Firestore側では基本的な読み取り制限のみ
-      allow read: if true;
       
-      // 書き込み: 認証済みユーザーのみ許可
-      allow write: if true;
+      // ----- バリデーション関数 -----
+      // メンバーデータの形式が正しいかチェック
+      function isValidMember(data) {
+        // 必須項目: firstName, lastName は必須かつ文字列
+        let hasFirstName = data.firstName is string 
+                           && data.firstName.size() > 0 
+                           && data.firstName.size() <= 50;
+        let hasLastName = data.lastName is string 
+                          && data.lastName.size() > 0 
+                          && data.lastName.size() <= 50;
+        
+        // registry は 'magomago' or 'tengoku' のみ
+        let validRegistry = data.registry is string 
+                            && (data.registry == 'magomago' || data.registry == 'tengoku');
+        
+        // generation は数値（1以上）または null
+        let validGeneration = !('generation' in data) 
+                              || data.generation == null 
+                              || (data.generation is int && data.generation >= 1);
+        
+        // branchId は数値または null
+        let validBranch = !('branchId' in data) 
+                          || data.branchId == null 
+                          || data.branchId is int;
+        
+        return hasFirstName && hasLastName && validRegistry && validGeneration && validBranch;
+      }
+      
+      // ----- 権限ルール -----
+      
+      // 読み取り: Firebase認証済み（匿名含む）ユーザーのみ許可
+      allow read: if request.auth != null;
+      
+      // 作成: 認証済み + バリデーション通過が必須
+      allow create: if request.auth != null 
+                    && isValidMember(request.resource.data);
+      
+      // 更新: 認証済み + バリデーション通過が必須
+      allow update: if request.auth != null 
+                    && isValidMember(request.resource.data);
+      
+      // 削除: 認証済みなら許可（アプリの削除機能維持のため）
+      allow delete: if request.auth != null;
     }
     
+    // ====================================
     // その他のコレクションは全てブロック
+    // ====================================
     match /{document=**} {
       allow read, write: if false;
     }
   }
 }
+

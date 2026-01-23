@@ -511,13 +511,38 @@ body {
    - 雪舟の水墨画をモチーフにしたミニマルデザイン
    =================================================================== */
 
-/* 家系図コンテナ（横幅いっぱい） */
+/* 家系図コンテナ（横幅いっぱい）- 和モダンボーダー */
 #family-tree-container {
   background: linear-gradient(135deg, #FDFBF7 0%, #F5F3EF 100%);
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  padding: 0 20px;
+  width: calc(100vw - 32px);
+  margin-left: calc(-50vw + 50% + 16px);
+  padding: 0;
   position: relative;
+  /* 和モダンボーダー - 背景に馴染む薄墨色 */
+  border: 1px solid #d0cdc8;
+  border-radius: 4px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  min-height: 500px;
+  overflow: hidden;
+}
+
+/* 四辺フェード効果 - 続きがあるような印象 */
+#family-tree-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 100;
+  /* 四辺からのグラデーションフェード（広く強めに設定） */
+  box-shadow:
+    inset 80px 0 60px -30px rgba(253, 251, 247, 1),
+    inset -80px 0 60px -30px rgba(253, 251, 247, 1),
+    inset 0 80px 60px -30px rgba(253, 251, 247, 1),
+    inset 0 -80px 60px -30px rgba(253, 251, 247, 1);
 }
 
 /* --- リンク（親子関係の線）--- */

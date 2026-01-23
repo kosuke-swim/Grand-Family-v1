@@ -11,6 +11,7 @@ export default function adminModule() {
         newMember: {
             firstName: '',
             lastName: '',
+            romanizedName: '',  // ローマ字表記
             registry: 'magomago',
             branchId: null,
             generation: null,
@@ -43,6 +44,7 @@ export default function adminModule() {
         newSpouse: {
             firstName: '',
             lastName: '',
+            romanizedName: '',  // ローマ字表記
             birthDate: '',
             registry: 'tengoku',
             passedAt: null
@@ -53,6 +55,7 @@ export default function adminModule() {
         editMember: {
             firstName: '',
             lastName: '',
+            romanizedName: '',  // ローマ字表記
             registry: 'magomago',
             birthDate: '',
             passedAt: '',
@@ -73,6 +76,7 @@ export default function adminModule() {
         newSpouseForEdit: {
             firstName: '',
             lastName: '',
+            romanizedName: '',  // ローマ字表記
             birthDate: '',
             registry: 'tengoku',
             passedAt: null
@@ -114,6 +118,21 @@ export default function adminModule() {
         },
 
         // --- Methods ---
+
+        /**
+         * ローマ字をTitle Case（例: Kosuke Doi）にフォーマット
+         * @param {string} name - 入力されたローマ字
+         * @returns {string} - Title Case形式のローマ字
+         */
+        formatRomanizedName(name) {
+            if (!name) return '';
+            return name
+                .toLowerCase()
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        },
+
 
         /**
          * 親選択時のイベントハンドラ
@@ -171,6 +190,7 @@ export default function adminModule() {
                 const memberData = {
                     firstName: this.newMember.firstName,
                     lastName: this.newMember.lastName,
+                    romanizedName: this.newMember.romanizedName || null,
                     registry: this.newMember.registry,
                     branchId: this.newMember.branchId,
                     generation: this.newMember.generation,
@@ -224,6 +244,7 @@ export default function adminModule() {
                 const memberData = {
                     firstName: this.newMember.firstName,
                     lastName: this.newMember.lastName,
+                    romanizedName: this.newMember.romanizedName || null,
                     registry: this.newMember.registry,
                     branchId: this.newMember.branchId,
                     generation: this.newMember.generation,
@@ -242,6 +263,7 @@ export default function adminModule() {
                 const spouseData = {
                     firstName: this.newSpouse.firstName,
                     lastName: this.newSpouse.lastName,
+                    romanizedName: this.newSpouse.romanizedName || null,
                     registry: this.newSpouse.registry,
                     branchId: this.newMember.branchId,  // 同じ枝番
                     generation: this.newMember.generation,  // 同じ世代
@@ -292,6 +314,7 @@ export default function adminModule() {
             this.newMember = {
                 firstName: '',
                 lastName: '',
+                romanizedName: '',
                 registry: 'magomago',
                 branchId: null,
                 generation: null,
@@ -308,6 +331,7 @@ export default function adminModule() {
             this.newSpouse = {
                 firstName: '',
                 lastName: '',
+                romanizedName: '',
                 birthDate: '',
                 registry: 'tengoku',
                 passedAt: null
@@ -406,6 +430,7 @@ export default function adminModule() {
             this.editMember = {
                 firstName: '',
                 lastName: '',
+                romanizedName: '',
                 registry: 'magomago',
                 birthDate: '',
                 passedAt: '',
@@ -421,6 +446,7 @@ export default function adminModule() {
             this.newSpouseForEdit = {
                 firstName: '',
                 lastName: '',
+                romanizedName: '',
                 birthDate: '',
                 registry: 'tengoku',
                 passedAt: null
@@ -461,6 +487,7 @@ export default function adminModule() {
                 const updateData = {
                     firstName: this.editMember.firstName,
                     lastName: this.editMember.lastName,
+                    romanizedName: this.editMember.romanizedName || null,
                     registry: this.editMember.registry,
                     spouseId: newSpouseId,
                     birthDate: this.editMember.birthDate || null,
@@ -604,6 +631,7 @@ export default function adminModule() {
                 const spouseData = {
                     firstName: this.newSpouseForEdit.firstName,
                     lastName: this.newSpouseForEdit.lastName || this.editMember.lastName,
+                    romanizedName: this.newSpouseForEdit.romanizedName || null,
                     registry: this.newSpouseForEdit.registry,
                     branchId: this.editMember.branchId,  // 同じ枝番
                     generation: this.editMember.generation,  // 同じ世代
@@ -645,6 +673,7 @@ export default function adminModule() {
                 this.newSpouseForEdit = {
                     firstName: '',
                     lastName: '',
+                    romanizedName: '',
                     birthDate: '',
                     registry: 'tengoku',
                     passedAt: null
